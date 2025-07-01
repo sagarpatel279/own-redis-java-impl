@@ -19,12 +19,12 @@ class ClientHandle implements Runnable {
                 String message=sc.nextLine();
                 if(message.equalsIgnoreCase("PING")) {
                     writer.write("+PONG\r\n".getBytes());
-                    writer.flush();
                 }
                 if(message.equalsIgnoreCase("ECHO")){
                     String bulkyStr=sc.nextLine();
                     writer.write(("$"+bulkyStr.length()+"\r\n"+bulkyStr+"\r\n").getBytes());
                 }
+                writer.flush();
             }
         }catch (Exception e) {
             System.out.println("Client handler error: " + e.getMessage());
