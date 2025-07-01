@@ -5,7 +5,7 @@ import java.util.concurrent.Executors;
 
 public class Main {
     public static void main(String[] args) {
-        int port = 6389;
+        int port = 6379;
         ExecutorService executor= Executors.newCachedThreadPool();
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             serverSocket.setReuseAddress(true);
