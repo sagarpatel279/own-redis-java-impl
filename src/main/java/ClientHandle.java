@@ -3,14 +3,14 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Scanner;
 
-class ClientHandle {
+class ClientHandle implements Runnable {
     private final Socket clientSocket;
 
     public ClientHandle(Socket clientSocket) {
         this.clientSocket = clientSocket;
     }
 
-    public void handleClient() {
+    private void handleClient() {
         System.out.println("Client connected: " + clientSocket.getRemoteSocketAddress());
 
         try(Scanner sc = new Scanner(clientSocket.getInputStream());
@@ -31,5 +31,10 @@ class ClientHandle {
                 System.out.println("Close error: " + e.getMessage());
             }
         }
+    }
+
+    @Override
+    public void run() {
+        handleClient();
     }
 }
