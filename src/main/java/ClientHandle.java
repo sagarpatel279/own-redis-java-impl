@@ -21,9 +21,10 @@ class ClientHandle implements Runnable {
                     writer.write("+PONG\r\n".getBytes());
                 }
                 if(message.equalsIgnoreCase("ECHO")){
+                    String lenStr=sc.nextLine();
                     String bulkyStr= sc.nextLine();
-                    bulkyStr = "$" +
-                            bulkyStr.length() +
+                    System.out.println("Bulky String: "+bulkyStr);
+                    bulkyStr = lenStr+
                             "\r\n" +
                             bulkyStr +
                             "\r\n";
