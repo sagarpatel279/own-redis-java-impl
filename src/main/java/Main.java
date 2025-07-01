@@ -18,6 +18,7 @@ public class Main {
 
         } catch (Exception e) {
             System.out.println("Server exception: " + e.getMessage());
+
         }
     }
 }
