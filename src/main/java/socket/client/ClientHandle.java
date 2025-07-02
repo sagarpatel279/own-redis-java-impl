@@ -1,11 +1,15 @@
+package socket.client;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Scanner;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
-class ClientHandle implements Runnable {
+public class ClientHandle implements Runnable {
     private final Socket clientSocket;
-
+    private final ConcurrentMap<Object,Object> concurrentMap=new ConcurrentHashMap<>();
     public ClientHandle(Socket clientSocket) {
         this.clientSocket = clientSocket;
     }
@@ -17,19 +21,7 @@ class ClientHandle implements Runnable {
             OutputStream writer = clientSocket.getOutputStream()) {
             while(sc.hasNextLine()){
                 String message=sc.nextLine();
-                if(message.equalsIgnoreCase("PING")) {
-                    writer.write("+PONG\r\n".getBytes());
-                }
-                if(message.equalsIgnoreCase("ECHO")){
-                    String lenStr=sc.nextLine();
-                    String bulkyStr= sc.nextLine();
-                    System.out.println("Bulky String: "+bulkyStr);
-                    bulkyStr = lenStr+
-                            "\r\n" +
-                            bulkyStr +
-                            "\r\n";
-                    writer.write(bulkyStr.getBytes());
-                }
+
                 writer.flush();
             }
         }catch (Exception e) {
