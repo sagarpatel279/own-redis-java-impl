@@ -9,12 +9,12 @@ import resp.constants.RESPParserConstants;
 
 import java.util.Iterator;
 
-public class RESPEncoder {
-    private static final Logger logger = LoggerFactory.getLogger(RESPEncoder.class);
+public class RESPJSONEncoder {
+    private static final Logger logger = LoggerFactory.getLogger(RESPJSONEncoder.class);
     private final StringBuilder encodedString = new StringBuilder();
     private JSONArray parsedArray = new JSONArray();
 
-    public RESPEncoder(String parsedArray) {
+    public RESPJSONEncoder(String parsedArray) {
         try {
             this.parsedArray = new JSONArray(parsedArray);
         } catch (Exception exception) {
@@ -22,7 +22,7 @@ public class RESPEncoder {
         }
     }
 
-    public RESPEncoder(JSONArray jsonArray) {
+    public RESPJSONEncoder(JSONArray jsonArray) {
         this.parsedArray = jsonArray;
     }
 

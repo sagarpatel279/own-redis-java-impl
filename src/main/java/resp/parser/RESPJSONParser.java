@@ -16,9 +16,9 @@ import java.math.BigInteger;
 import java.util.*;
 
 
-public class RESPParser {
+public class RESPJSONParser {
 
-    private static final Logger logger = LoggerFactory.getLogger(RESPParser.class);
+    private static final Logger logger = LoggerFactory.getLogger(RESPJSONParser.class);
 
     private final List<String> dataStore;
 
@@ -30,15 +30,41 @@ public class RESPParser {
     private InputStream inputStream;
     private int length = 0;
 
-    public RESPParser(String stringData) {
+    private RESPJSONParser(String builder) {
         this.stringData = stringData;
         this.dataStore = this.formatStringData();
     }
-
-    public RESPParser(InputStream inputStream) {
-        this.inputStream = inputStream;
+    private RESPJSONParser(InputStream inputStream) {
+        this.inputStream=inputStream;
         this.dataStore = this.readAndFormatInputStream();
     }
+    public static Builder getBuilder(){
+        return new Builder();
+    }
+    public static class Builder{
+        private String stringData;
+        private InputStream inputStream;
+        private Builder(){}
+        public Builder setStringData(String stringData){
+            this.stringData=stringData;
+            return this;
+        }
+        public Builder setInputStream(InputStream inputStream){
+            this.inputStream=inputStream;
+            return this;
+        }
+
+        public RESPJSONParser build(){
+            if((stringData==null || stringData.isBlank()) && inputStream==null){
+                throw new IllegalArgumentException("String data or bytes of stream is needed...!");
+            }
+
+            if(stringData!=null && !stringData.isBlank())
+                return new RESPJSONParser(this.stringData);
+            return new RESPJSONParser(this.inputStream);
+        }
+    }
+
 
     private List<String> formatStringData() {
         List<String> respTokens = new ArrayList<>();
