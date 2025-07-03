@@ -27,19 +27,23 @@ public class ClientHandle implements Runnable {
             while(true) {
                 RESPArrayParser parser = RESPArrayParser.getBuilder().setInputStream(clientSocket.getInputStream()).build();
                 Object commands = parser.parse();
-                System.out.println("Commands: "+commands);
                 if (commands instanceof List) {
                     String written = "";
                     List<Object> cmdParts = (List<Object>) commands;
                     String commandName = cmdParts.get(0).toString();
                     String key = cmdParts.get(1).toString();
                     System.out.println("Command Name: " + commandName + " and Key: " + key);
-                    if (commandName.equalsIgnoreCase("set")) {
+                    if(commandName.equalsIgnoreCase("ping")) {
+                        written="+PONG\r\n";
+                    }
+                    else if(commandName.equalsIgnoreCase("echo")){
+                        String value=cmdParts.get(1).toString();
+                        written="$"+value.length()+"\r\n"+value+"\r\n";
+                    }else if (commandName.equalsIgnoreCase("set")) {
                         String value = cmdParts.get(2).toString();
                         concurrentMap.put(key, value);
                         written += "+OK\r\n";
-                    }
-                    if (commandName.equalsIgnoreCase("get")) {
+                    }else if (commandName.equalsIgnoreCase("get")) {
                         System.out.println("=============Inside GET=============");
                         written = "$";
                         if (concurrentMap.containsKey(key)) {
