@@ -2,10 +2,8 @@ package resp.parser;
 
 import static resp.constants.RESPParserConstants.*;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +12,9 @@ public class RESPArrayParser {
     private RESPArrayParser(InputStream inputStream) {
         this.reader = new BufferedReader(new InputStreamReader(inputStream));
     }
-
+    private RESPArrayParser(String encodedString){
+        this.reader= new BufferedReader(new InputStreamReader(new ByteArrayInputStream(encodedString.getBytes(StandardCharsets.UTF_8))));
+    }
     public Object parse() throws IOException {
         int prefix = reader.read();
         if (prefix == -1) return null;
@@ -34,16 +34,23 @@ public class RESPArrayParser {
     }
     public static class Builder{
         private InputStream stream;
+        private String encodedString;
         private Builder(){}
         public Builder setInputStream(InputStream stream){
             this.stream=stream;
             return this;
         }
+        public Builder setEncodedString(String encodedString){
+            this.encodedString=encodedString;
+            return this;
+        }
         public RESPArrayParser build(){
-            if(stream==null){
+            if(stream==null && (encodedString==null || encodedString.isBlank())){
                 throw new NullPointerException("InputStream must not be null");
             }
-            return new RESPArrayParser(this.stream);
+            if(stream!=null)
+                return new RESPArrayParser(this.stream);
+            return new RESPArrayParser(this.encodedString);
         }
     }
     private String parseSimpleString() throws IOException {

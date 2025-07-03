@@ -4,6 +4,7 @@ import resp.parser.RESPArrayParser;
 import resp.parser.RESPJSONParser;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.List;
@@ -22,35 +23,39 @@ public class ClientHandle implements Runnable {
     private void handleClient() {
         System.out.println("Client connected: " + clientSocket.getRemoteSocketAddress());
 
-        try(OutputStream writer = clientSocket.getOutputStream()) {
-            RESPArrayParser parser= RESPArrayParser.getBuilder().setInputStream(clientSocket.getInputStream()).build();
-            Object commands=parser.parse();
-            System.out.println("Commands "+commands);
-            if(commands instanceof List){
-                String written="";
-                List<Object> cmdParts = (List<Object>) commands;
-                String commandName=cmdParts.get(0).toString();
-                String key=cmdParts.get(1).toString();
-                System.out.println("Command Name: "+commandName+ " and Key: "+key);
-                if(commandName.equalsIgnoreCase("set")){
-                    String value=cmdParts.get(2).toString();
-                    concurrentMap.put(key,value);
-                    written+="+OK\r\n";
-                }
-                if(commandName.equalsIgnoreCase("get")){
-                    System.out.println("=============Inside GET=============");
-                    written="$";
-                    if(concurrentMap.containsKey(key)){
-                        String value=concurrentMap.get(key).toString();
-                        written+=value.length()+"\r\n"+value+"\r\n";
-                    }else{
-                        written+="-1\r\n";
+        try(Scanner sc=new Scanner(clientSocket.getInputStream());
+                OutputStream writer = clientSocket.getOutputStream()) {
+            while(sc.hasNextLine()) {
+                String message=sc.nextLine();
+                RESPArrayParser parser = RESPArrayParser.getBuilder().setEncodedString(message).build();
+                Object commands = parser.parse();
+                if (commands instanceof List) {
+                    String written = "";
+                    List<Object> cmdParts = (List<Object>) commands;
+                    String commandName = cmdParts.get(0).toString();
+                    String key = cmdParts.get(1).toString();
+                    System.out.println("Command Name: " + commandName + " and Key: " + key);
+                    if (commandName.equalsIgnoreCase("set")) {
+                        String value = cmdParts.get(2).toString();
+                        concurrentMap.put(key, value);
+                        written += "+OK\r\n";
                     }
-                    System.out.println(" Written String: "+written);
+                    if (commandName.equalsIgnoreCase("get")) {
+                        System.out.println("=============Inside GET=============");
+                        written = "$";
+                        if (concurrentMap.containsKey(key)) {
+                            String value = concurrentMap.get(key).toString();
+                            written += value.length() + "\r\n" + value + "\r\n";
+                        } else {
+                            written += "-1\r\n";
+                        }
+                        System.out.println(" Written String: " + written);
+                    }
+                    writer.write(written.getBytes());
+                    writer.flush();
                 }
-                writer.write(written.getBytes());
-                writer.flush();
             }
+
         }catch (Exception e) {
             System.out.println("Client handler error: " + e.getMessage());
         }finally {
