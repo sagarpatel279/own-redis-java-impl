@@ -27,7 +27,7 @@ public class ClientHandle implements Runnable {
                 OutputStream writer = clientSocket.getOutputStream()) {
             while(sc.hasNextLine()) {
                 String message=sc.nextLine();
-
+                System.out.println("Message: "+message);
                 RESPArrayParser parser = RESPArrayParser.getBuilder().setEncodedString(message).build();
                 Object commands = parser.parse();
                 System.out.println("Commands: "+commands);
