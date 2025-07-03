@@ -20,13 +20,14 @@ public class ClientHandle implements Runnable {
         this.clientSocket = clientSocket;
     }
 
-    private void handleClient() {
+    private synchronized void handleClient() {
         System.out.println("Client connected: " + clientSocket.getRemoteSocketAddress());
 
         try(Scanner sc=new Scanner(clientSocket.getInputStream());
                 OutputStream writer = clientSocket.getOutputStream()) {
             while(sc.hasNextLine()) {
                 String message=sc.nextLine();
+
                 RESPArrayParser parser = RESPArrayParser.getBuilder().setEncodedString(message).build();
                 Object commands = parser.parse();
                 System.out.println("Commands: "+commands);
