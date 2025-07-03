@@ -13,7 +13,7 @@ public class RESPArrayParser {
         this.reader = new BufferedReader(new InputStreamReader(inputStream));
     }
     private RESPArrayParser(String encodedString){
-        this.reader= new BufferedReader(new InputStreamReader(new ByteArrayInputStream(encodedString.getBytes(StandardCharsets.UTF_8))));
+        this.reader= new BufferedReader(new InputStreamReader(new ByteArrayInputStream(encodedString.getBytes())));
     }
     public Object parse() throws IOException {
         int prefix = reader.read();
