@@ -30,12 +30,14 @@ public class ClientHandle implements Runnable {
                 List<Object> cmdParts = (List<Object>) commands;
                 String commandName=cmdParts.get(0).toString();
                 String key=cmdParts.get(1).toString();
+
                 if(commandName.equalsIgnoreCase("set")){
                     String value=cmdParts.get(2).toString();
                     concurrentMap.put(key,value);
                     written+="+OK\r\n";
-                }else{
-                    written+="$";
+                }
+                if(commandName.equalsIgnoreCase("get")){
+                    written="$";
                     if(concurrentMap.containsKey(key)){
                         String value=concurrentMap.get(key).toString();
                         written+=value.length()+"\r\n"+value+"\r\n";
