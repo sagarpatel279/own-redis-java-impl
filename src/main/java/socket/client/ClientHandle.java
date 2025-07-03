@@ -41,7 +41,7 @@ public class ClientHandle implements Runnable {
                         String value=cmdParts.get(currentCommandIndex.addAndGet(1)).toString();
                         written="$"+value.length()+"\r\n"+value+"\r\n";
                     }else if (commandName.equalsIgnoreCase("set")) {
-                        String key = cmdParts.get(currentCommandIndex.get()).toString();
+                        String key = cmdParts.get(currentCommandIndex.addAndGet(1)).toString();
                         String value = cmdParts.get(currentCommandIndex.addAndGet(1)).toString();
                         if(currentCommandIndex.addAndGet(1)<cmdParts.size()){
                             TimeUnit timeUnit = TimeUnit.MILLISECONDS;
