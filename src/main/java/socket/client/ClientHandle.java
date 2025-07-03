@@ -20,15 +20,12 @@ public class ClientHandle implements Runnable {
         this.clientSocket = clientSocket;
     }
 
-    private synchronized void handleClient() {
+    private void handleClient() {
         System.out.println("Client connected: " + clientSocket.getRemoteSocketAddress());
 
-        try(Scanner sc=new Scanner(clientSocket.getInputStream());
-                OutputStream writer = clientSocket.getOutputStream()) {
-            while(sc.hasNextLine()) {
-                String message=sc.nextLine();
-                System.out.println("Message: "+message);
-                RESPArrayParser parser = RESPArrayParser.getBuilder().setEncodedString(message).build();
+        try(OutputStream writer = clientSocket.getOutputStream()) {
+            while(true) {
+                RESPArrayParser parser = RESPArrayParser.getBuilder().setInputStream(clientSocket.getInputStream()).build();
                 Object commands = parser.parse();
                 System.out.println("Commands: "+commands);
                 if (commands instanceof List) {
