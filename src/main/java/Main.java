@@ -6,8 +6,8 @@ import java.io.*;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-//        RedisServer redisServer=new RedisServer(6379);
-//        redisServer.startServer();
+        RedisServer redisServer=new RedisServer(6379);
+        redisServer.startServer();
 
 
         String input = "*3\r\n$3\r\nSET\r\n$9\r\npineapple\r\n$4\r\npear\r\n";
