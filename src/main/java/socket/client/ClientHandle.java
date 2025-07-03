@@ -30,13 +30,14 @@ public class ClientHandle implements Runnable {
                 List<Object> cmdParts = (List<Object>) commands;
                 String commandName=cmdParts.get(0).toString();
                 String key=cmdParts.get(1).toString();
-
+                System.out.println("Command Name: "+commandName+ " and Key: "+key);
                 if(commandName.equalsIgnoreCase("set")){
                     String value=cmdParts.get(2).toString();
                     concurrentMap.put(key,value);
                     written+="+OK\r\n";
                 }
                 if(commandName.equalsIgnoreCase("get")){
+                    System.out.println("=============Inside GET=============");
                     written="$";
                     if(concurrentMap.containsKey(key)){
                         String value=concurrentMap.get(key).toString();
@@ -44,6 +45,7 @@ public class ClientHandle implements Runnable {
                     }else{
                         written+="-1\r\n";
                     }
+                    System.out.println(" Written String: "+written);
                 }
                 writer.write(written.getBytes());
                 writer.flush();
