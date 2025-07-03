@@ -1,5 +1,6 @@
 package socket.client;
 
+import repos.ExpiringMap;
 import resp.parser.RESPArrayParser;
 import resp.parser.RESPJSONParser;
 
@@ -9,15 +10,18 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.List;
 import java.util.Scanner;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ClientHandle implements Runnable {
     private final Socket clientSocket;
-    private final ConcurrentMap<Object,Object> concurrentMap=new ConcurrentHashMap<>();
+    private final ExpiringMap<String,String> expiringMap=new ExpiringMap<>();
+    private final ScheduledExecutorService scheduler= Executors.newScheduledThreadPool(1);
     private RESPJSONParser RESPJSONParser;
+    private final AtomicInteger currentCommandIndex;
     public ClientHandle(Socket clientSocket) {
         this.clientSocket = clientSocket;
+        currentCommandIndex=new AtomicInteger(0);
     }
 
     private void handleClient() {
@@ -30,22 +34,34 @@ public class ClientHandle implements Runnable {
                 if (commands instanceof List) {
                     String written = "";
                     List<Object> cmdParts = (List<Object>) commands;
-                    String commandName = cmdParts.get(0).toString();
+                    String commandName = cmdParts.get(currentCommandIndex.get()).toString();
                     if(commandName.equalsIgnoreCase("ping")) {
                         written="+PONG\r\n";
                     }else if(commandName.equalsIgnoreCase("echo")){
-                        String value=cmdParts.get(1).toString();
+                        String value=cmdParts.get(currentCommandIndex.addAndGet(1)).toString();
                         written="$"+value.length()+"\r\n"+value+"\r\n";
                     }else if (commandName.equalsIgnoreCase("set")) {
-                        String key = cmdParts.get(1).toString();
-                        String value = cmdParts.get(2).toString();
-                        concurrentMap.put(key, value);
+                        String key = cmdParts.get(currentCommandIndex.get()).toString();
+                        String value = cmdParts.get(currentCommandIndex.addAndGet(1)).toString();
+                        if(currentCommandIndex.addAndGet(1)<cmdParts.size()){
+                            TimeUnit timeUnit = TimeUnit.MILLISECONDS;
+                            if(cmdParts.get(currentCommandIndex.get()).equals("px")){
+                                timeUnit=TimeUnit.MILLISECONDS;
+                            }else if(cmdParts.get(currentCommandIndex.get()).equals("ex")){
+                                timeUnit=TimeUnit.SECONDS;
+                            }
+
+                            long delay=Long.parseLong(cmdParts.get(currentCommandIndex.addAndGet(1)).toString());
+                            expiringMap.put(key,value,delay,timeUnit);
+                        }else{
+                            expiringMap.put(key, value);
+                        }
                         written += "+OK\r\n";
                     }else if (commandName.equalsIgnoreCase("get")) {
                         written = "$";
-                        String key = cmdParts.get(1).toString();
-                        if (concurrentMap.containsKey(key)) {
-                            String value = concurrentMap.get(key).toString();
+                        String key = cmdParts.get(currentCommandIndex.addAndGet(1)).toString();
+                        if (expiringMap.containsKey(key)) {
+                            String value = expiringMap.get(key);
                             written += value.length() + "\r\n" + value + "\r\n";
                         } else {
                             written += "-1\r\n";
