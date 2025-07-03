@@ -31,28 +31,25 @@ public class ClientHandle implements Runnable {
                     String written = "";
                     List<Object> cmdParts = (List<Object>) commands;
                     String commandName = cmdParts.get(0).toString();
-                    String key = cmdParts.get(1).toString();
-                    System.out.println("Command Name: " + commandName + " and Key: " + key);
                     if(commandName.equalsIgnoreCase("ping")) {
                         written="+PONG\r\n";
-                    }
-                    else if(commandName.equalsIgnoreCase("echo")){
+                    }else if(commandName.equalsIgnoreCase("echo")){
                         String value=cmdParts.get(1).toString();
                         written="$"+value.length()+"\r\n"+value+"\r\n";
                     }else if (commandName.equalsIgnoreCase("set")) {
+                        String key = cmdParts.get(1).toString();
                         String value = cmdParts.get(2).toString();
                         concurrentMap.put(key, value);
                         written += "+OK\r\n";
                     }else if (commandName.equalsIgnoreCase("get")) {
-                        System.out.println("=============Inside GET=============");
                         written = "$";
+                        String key = cmdParts.get(1).toString();
                         if (concurrentMap.containsKey(key)) {
                             String value = concurrentMap.get(key).toString();
                             written += value.length() + "\r\n" + value + "\r\n";
                         } else {
                             written += "-1\r\n";
                         }
-                        System.out.println(" Written String: " + written);
                     }
                     writer.write(written.getBytes());
                     writer.flush();

@@ -10,11 +10,11 @@ public class Main {
         redisServer.startServer();
 
 
-        String input = "*3\r\n$3\r\nSET\r\n$9\r\npineapple\r\n$4\r\npear\r\n";
-        InputStream stream = new ByteArrayInputStream(input.getBytes());
-        RESPArrayParser parser=RESPArrayParser.getBuilder().setEncodedString(input).build();
-        Object result = parser.parse();
-        System.out.println(result);
+//        String input = "*1\r\n$4\r\nPING\r\n";
+//        InputStream stream = new ByteArrayInputStream(input.getBytes());
+//        RESPArrayParser parser=RESPArrayParser.getBuilder().setEncodedString(input).build();
+//        Object result = parser.parse();
+//        System.out.println(result);
     }
 }
 
