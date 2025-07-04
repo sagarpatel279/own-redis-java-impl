@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Queue;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -22,6 +24,7 @@ public class ClientHandle implements Runnable {
     private RESPJSONParser RESPJSONParser;
     private final AtomicInteger currentCommandIndex;
     private int currentIndx;
+    private Queue<Object> commandQueue;
     public ClientHandle(Socket clientSocket) {
         this.clientSocket = clientSocket;
         currentCommandIndex=new AtomicInteger(0);
@@ -41,39 +44,34 @@ public class ClientHandle implements Runnable {
                 Object commands = parser.parse();
 
                 if(!(commands instanceof List))continue;
-                currentIndx=0;
-                List<Object> cmdParts = (List<Object>) commands;
 
-                System.out.println("Size of Commands: "+cmdParts.size());
+                commandQueue= (Queue<Object>) commands;
+
+                System.out.println("Size of Commands: "+commandQueue.size());
                 System.out.println("Commands List: "+commands);
 
-                System.out.println("Before Command Name Index is: "+currentIndx);
-                String commandName = cmdParts.get(currentIndx++).toString();
-                System.out.println("After Command Name Index is: "+currentIndx);
+                String commandName = getFirstCommand().toString();
                 if(commandName.equalsIgnoreCase(C_PING)) {
                     handlePingCommand(writer);
                 }else if(commandName.equalsIgnoreCase(C_ECHO)){
 
-                    System.out.println("Before ECHO Command's Value Index is: "+currentIndx);
-                    String returnValue=cmdParts.get(currentIndx++).toString();
-                    System.out.println("After ECHO Command's Value Index is: "+currentIndx);
+                    String returnValue=getFirstCommand().toString();
                     handleEchoCommand(writer,returnValue);
                 }else if (commandName.equalsIgnoreCase(C_SET)) {
-                    System.out.println("Before SET Command'S KEY Index is: "+currentIndx);
-                    Object key = cmdParts.get(currentIndx++);
-                    System.out.println("After SET Command'S KEY Index is: "+currentIndx);
+                    Object key = getFirstCommand();
 
 
-                    System.out.println("Before SET Command'S VALUE Index is: "+currentIndx);
-                    Object value = cmdParts.get(currentIndx++);
-                    System.out.println("After SET Command'S VALUE Index is: "+currentIndx);
-
-                    handleSetCommand(writer,key,value);
+                    Object value = getFirstCommand();
+                    if(currentIndx<commandQueue.size()) {
+                        Object expiryType=getFirstCommand();
+                        Object delay=getFirstCommand();
+                        handleSetCommand(writer, key, value,expiryType,delay);
+                    }else{
+                        handleSetCommand(writer, key, value);
+                    }
                 }else if (commandName.equalsIgnoreCase(C_GET)) {
 
-                    System.out.println("Before GET Command'S KEY Index is: "+currentIndx);
-                    Object key = cmdParts.get(currentIndx++);
-                    System.out.println("After GET Command'S KEY Index is: "+currentIndx);
+                    Object key = getFirstCommand();
                     handleGetCommand(writer,key);
                 }
                 writer.flush();
@@ -89,7 +87,13 @@ public class ClientHandle implements Runnable {
             }
         }
     }
-
+    private Object getFirstCommand(){
+        if(commandQueue==null){
+            throw new NullPointerException("Command Queue is null");
+        }else if(commandQueue.isEmpty())
+            throw new NoSuchElementException("Queue is Empty");
+        return commandQueue.poll();
+    }
     private void handleEchoCommand(OutputStream writer,String returnValue) throws IOException {
         String response=BULK_STRING+returnValue.length()+C_CRLF+returnValue+C_CRLF;
         writer.write(response.getBytes());
