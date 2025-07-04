@@ -24,10 +24,9 @@ public class ClientHandler implements Runnable {
     private void handleClient() {
         System.out.println("Client connected: " + client.getSocket().getRemoteSocketAddress());
 
-        try(OutputStream writer = client.getOutputStream()) {
-            while(true) {
-                InputStream stream=client.getInputStream();
-                if(stream.available()<=0)continue;
+        try(OutputStream writer = client.getOutputStream();
+                        InputStream stream=client.getInputStream()) {
+            while(stream.available()>0) {
                 RESPArrayParser parser = RESPArrayParser.getBuilder().setInputStream(stream).build();
                 commandHandler= new CommandHandler(parser.getCommandList());
 
