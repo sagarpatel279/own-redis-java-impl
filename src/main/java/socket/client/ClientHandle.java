@@ -18,7 +18,7 @@ import java.util.concurrent.*;
 public class ClientHandle implements Runnable {
     private final Socket clientSocket;
     private final ExpiringMap<Object,Object> expiringMap=new ExpiringMap<>();
-    private Queue<Object> commandQueue;
+    private ConcurrentLinkedQueue<Object> commandQueue;
     public ClientHandle(Socket clientSocket) {
         this.clientSocket = clientSocket;
     }
@@ -39,7 +39,7 @@ public class ClientHandle implements Runnable {
 
                 if(!(commands instanceof List))continue;
 
-                commandQueue= new LinkedList<>((List<Object>) commands);
+                commandQueue= new ConcurrentLinkedQueue<>((List<Object>) commands);
 
                 System.out.println("Size of Commands: "+commandQueue.size()+" & List: "+commands);
 
