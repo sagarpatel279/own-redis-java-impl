@@ -100,22 +100,36 @@ public class ClientHandle implements Runnable {
     }
 
     private void handleSetCommand(OutputStream writer,Object key,Object value,Object... expiryVariable) throws IOException {
-        if(expiryVariable!=null){
-            TimeUnit timeUnit = null;
-            if(expiryVariable[0].toString().equalsIgnoreCase(C_PX)){
-                timeUnit=TimeUnit.MILLISECONDS;
-            }else if(expiryVariable[0].toString().equalsIgnoreCase(C_EX)){
-                timeUnit=TimeUnit.SECONDS;
-            }else{
-                throw new IllegalArgumentException("Expiry Variable mismatched..");
+        if (expiryVariable != null && expiryVariable.length >= 2) {
+            TimeUnit timeUnit;
+
+            String expiryType = expiryVariable[0].toString().toUpperCase();
+
+            if (expiryType.equals(C_PX)) {
+                timeUnit = TimeUnit.MILLISECONDS;
+            } else if (expiryType.equals(C_EX)) {
+                timeUnit = TimeUnit.SECONDS;
+            } else {
+                throw new IllegalArgumentException("Expiry type not supported: " + expiryType);
             }
 
-            long delay=Long.parseLong(expiryVariable[1].toString());
-            expiringMap.put(key,value,delay,timeUnit);
-        }else{
+            long delay;
+            try {
+                delay = Long.parseLong(expiryVariable[1].toString());
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Invalid expiry time: " + expiryVariable[1], e);
+            }
+
+            expiringMap.put(key, value, delay, timeUnit);
+
+        } else if (expiryVariable == null || expiryVariable.length == 0) {
+            // No expiry set
             expiringMap.put(key, value);
+        } else {
+            throw new IllegalArgumentException("Expiry options require both a type and a value.");
         }
-        String response =SIMPLE_STRING+C_OK+C_CRLF;
+
+        String response = SIMPLE_STRING + C_OK + C_CRLF;
         writer.write(response.getBytes());
     }
     private void handleGetCommand(OutputStream writer,Object key) throws IOException {
