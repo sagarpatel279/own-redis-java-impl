@@ -1,75 +1,62 @@
 package socket.client;
 
 import repos.ExpiringMap;
+import static resp.constants.RESPParserConstants.*;
+import static resp.constants.RESPConstantCommands.*;
+import static resp.constants.RESPEncodingConstants.*;
+
 import resp.parser.RESPArrayParser;
 import resp.parser.RESPJSONParser;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.List;
-import java.util.Scanner;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ClientHandle implements Runnable {
     private final Socket clientSocket;
-    private final ExpiringMap<String,String> expiringMap=new ExpiringMap<>();
+    private final ExpiringMap<Object,Object> expiringMap=new ExpiringMap<>();
     private final ScheduledExecutorService scheduler= Executors.newScheduledThreadPool(1);
     private RESPJSONParser RESPJSONParser;
     private final AtomicInteger currentCommandIndex;
+    private int currentIndx=0;
     public ClientHandle(Socket clientSocket) {
         this.clientSocket = clientSocket;
         currentCommandIndex=new AtomicInteger(0);
     }
 
+    @Override
+    public void run() {
+        handleClient();
+    }
     private void handleClient() {
         System.out.println("Client connected: " + clientSocket.getRemoteSocketAddress());
 
         try(OutputStream writer = clientSocket.getOutputStream()) {
             while(true) {
-                Object commands=null;
-                synchronized (this) {
-                    RESPArrayParser parser = RESPArrayParser.getBuilder().setInputStream(clientSocket.getInputStream()).build();
-                    commands = parser.parse();
-                }
-                String written = "";
-                List<Object> cmdParts = (List<Object>) commands;
-                String commandName = cmdParts.get(currentCommandIndex.get()).toString();
-                if(commandName.equalsIgnoreCase("ping")) {
-                    written="+PONG\r\n";
-                }else if(commandName.equalsIgnoreCase("echo")){
-                    String value=cmdParts.get(currentCommandIndex.addAndGet(1)).toString();
-                    written="$"+value.length()+"\r\n"+value+"\r\n";
-                }else if (commandName.equalsIgnoreCase("set")) {
-                    String key = cmdParts.get(currentCommandIndex.addAndGet(1)).toString();
-                    String value = cmdParts.get(currentCommandIndex.addAndGet(1)).toString();
-                    if(currentCommandIndex.addAndGet(1)<cmdParts.size()){
-                        TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-                        if(cmdParts.get(currentCommandIndex.get()).equals("px")){
-                            timeUnit=TimeUnit.MILLISECONDS;
-                        }else if(cmdParts.get(currentCommandIndex.get()).equals("ex")){
-                            timeUnit=TimeUnit.SECONDS;
-                        }
+                RESPArrayParser parser = RESPArrayParser.getBuilder().setInputStream(clientSocket.getInputStream()).build();
+                Object commands = parser.parse();
 
-                        long delay=Long.parseLong(cmdParts.get(currentCommandIndex.addAndGet(1)).toString());
-                        expiringMap.put(key,value,delay,timeUnit);
-                    }else{
-                        expiringMap.put(key, value);
-                    }
-                    written += "+OK\r\n";
-                }else if (commandName.equalsIgnoreCase("get")) {
-                    String key = cmdParts.get(currentCommandIndex.addAndGet(1)).toString();
-                    written = "$";
-                    if (expiringMap.containsKey(key)) {
-                        String value = expiringMap.get(key);
-                        written += value.length() + "\r\n" + value + "\r\n";
-                    } else {
-                        written += "-1\r\n";
-                    }
+                if(!(commands instanceof List))throw new ClassCastException("Given Object class is not an instance of List class");
+
+                List<Object> cmdParts = (List<Object>) commands;
+                String commandName = cmdParts.get(currentIndx++).toString();
+
+                if(commandName.equalsIgnoreCase(C_PING)) {
+                    handlePingCommand(writer);
+                }else if(commandName.equalsIgnoreCase(C_ECHO)){
+                    String returnValue=cmdParts.get(currentIndx++).toString();
+                    handleEchoCommand(writer,returnValue);
+                }else if (commandName.equalsIgnoreCase(C_SET)) {
+                    Object key = cmdParts.get(currentIndx++);
+                    Object value = cmdParts.get(currentIndx++);
+                    handleSetCommand(writer,key,value);
+                }else if (commandName.equalsIgnoreCase(C_GET)) {
+                    Object key = cmdParts.get(currentIndx++);
+                    handleGetCommand(writer,key);
                 }
-                writer.write(written.getBytes());
                 writer.flush();
             }
 
@@ -84,8 +71,43 @@ public class ClientHandle implements Runnable {
         }
     }
 
-    @Override
-    public void run() {
-        handleClient();
+    private void handleEchoCommand(OutputStream writer,String returnValue) throws IOException {
+        String response=BULK_STRING+returnValue.length()+C_CRLF+returnValue+C_CRLF;
+        writer.write(response.getBytes());
+    }
+
+    private void handlePingCommand(OutputStream writer) throws IOException {
+        String response= SIMPLE_STRING+C_PONG+C_CRLF;
+        writer.write(response.getBytes());
+    }
+
+    private void handleSetCommand(OutputStream writer,Object key,Object value,Object... expiryVariable) throws IOException {
+        if(expiryVariable!=null){
+            TimeUnit timeUnit = null;
+            if(expiryVariable[0].toString().equalsIgnoreCase(C_PX)){
+                timeUnit=TimeUnit.MILLISECONDS;
+            }else if(expiryVariable[0].toString().equalsIgnoreCase(C_EX)){
+                timeUnit=TimeUnit.SECONDS;
+            }else{
+                throw new IllegalArgumentException("Expiry Variable mismatched..");
+            }
+
+            long delay=Long.parseLong(expiryVariable[1].toString());
+            expiringMap.put(key,value,delay,timeUnit);
+        }else{
+            expiringMap.put(key, value);
+        }
+        String response =SIMPLE_STRING+C_OK+C_CRLF;
+        writer.write(response.getBytes());
+    }
+    private void handleGetCommand(OutputStream writer,Object key) throws IOException {
+        String response = BULK_STRING;
+        if (expiringMap.containsKey(key)) {
+            String value = expiringMap.get(key).toString();
+            response += value.length() + C_CRLF + value + C_CRLF;
+        } else {
+            response += NULL_VALUE;
+        }
+        writer.write(response.getBytes());
     }
 }
