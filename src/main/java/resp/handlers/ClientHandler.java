@@ -31,7 +31,7 @@ public class ClientHandler implements Runnable {
                 RESPArrayParser parser = RESPArrayParser.getBuilder().setInputStream(stream).build();
                 commandHandler= new CommandHandler(parser.getCommandList());
 
-                String commandName = commandHandler.pollCommand().toString();
+                String commandName = commandHandler.pullCommand().toString();
                 String response;
                 if(commandName.equalsIgnoreCase(C_PING)) {
                     response =  commandHandler.handlePingCommand();

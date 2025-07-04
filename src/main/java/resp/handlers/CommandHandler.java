@@ -19,7 +19,7 @@ public class CommandHandler {
         this.commandQueue=new ConcurrentLinkedQueue<>(commandList);
     }
     public String handleEchoCommand(){
-        String returnValue= pollCommand().toString();
+        String returnValue= pullCommand().toString();
         return BULK_STRING+returnValue.length()+C_CRLF+returnValue+C_CRLF;
     }
 
@@ -27,12 +27,15 @@ public class CommandHandler {
         return SIMPLE_STRING+C_PONG+C_CRLF;
     }
 
-    public Object pollCommand(){
-        if(commandQueue==null){
-            throw new NullPointerException("Command Queue is null");
-        }else if(commandQueue.isEmpty())
+    public Object pullCommand(){
+       if(!isCommandExist())
             throw new NoSuchElementException("Queue is Empty");
         return commandQueue.poll();
+    }
+    public Object fetchCommand(){
+        if(!isCommandExist())
+            throw new NoSuchElementException("Queue is Empty");
+        return commandQueue.peek();
     }
     public boolean isCommandExist(){
         return !commandQueue.isEmpty();
@@ -41,10 +44,10 @@ public class CommandHandler {
         return commandQueue.size();
     }
     public String handleSetCommand(){
-        Object key = pollCommand();
-        Object value = pollCommand();
+        Object key = pullCommand();
+        Object value = pullCommand();
         if(isCommandExist()) {
-            Object expiryType= pollCommand();
+            Object expiryType= pullCommand();
             TimeUnit timeUnit;
             if (expiryType.equals(C_PX)) {
                 timeUnit = TimeUnit.MILLISECONDS;
@@ -55,7 +58,7 @@ public class CommandHandler {
             }
             long delay;
             try {
-                delay = Long.parseLong(pollCommand().toString());
+                delay = Long.parseLong(pullCommand().toString());
             } catch (NumberFormatException e) {
                 throw new IllegalArgumentException("Invalid expiry time" , e);
             }
@@ -67,7 +70,7 @@ public class CommandHandler {
     }
     public String handleGetCommand(){
         String response = BULK_STRING;
-        Object key = pollCommand();
+        Object key = pullCommand();
         if (expiringMap.containsKey(key)) {
             String value = expiringMap.get(key).toString();
             response += value.length() + C_CRLF + value + C_CRLF;
