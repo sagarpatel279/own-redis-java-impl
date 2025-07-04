@@ -60,8 +60,6 @@ public class ClientHandle implements Runnable {
                     handleEchoCommand(writer,returnValue);
                 }else if (commandName.equalsIgnoreCase(C_SET)) {
                     Object key = getFirstCommand();
-
-
                     Object value = getFirstCommand();
                     if(currentIndx<commandQueue.size()) {
                         Object expiryType=getFirstCommand();
