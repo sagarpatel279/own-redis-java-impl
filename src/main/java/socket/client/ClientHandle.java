@@ -21,10 +21,11 @@ public class ClientHandle implements Runnable {
     private final ScheduledExecutorService scheduler= Executors.newScheduledThreadPool(1);
     private RESPJSONParser RESPJSONParser;
     private final AtomicInteger currentCommandIndex;
-    private int currentIndx=0;
+    private int currentIndx;
     public ClientHandle(Socket clientSocket) {
         this.clientSocket = clientSocket;
         currentCommandIndex=new AtomicInteger(0);
+        this.currentIndx=0;
     }
 
     @Override
@@ -40,7 +41,7 @@ public class ClientHandle implements Runnable {
                 Object commands = parser.parse();
 
                 if(!(commands instanceof List))continue;
-
+                currentIndx=0;
                 List<Object> cmdParts = (List<Object>) commands;
 
                 System.out.println("Size of Commands: "+cmdParts.size());
