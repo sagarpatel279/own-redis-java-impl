@@ -1,11 +1,8 @@
-import resp.parser.RESPArrayParser;
-import resp.parser.RESPJSONParser;
 import socket.server.RedisServer;
 
-import java.io.*;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args){
         RedisServer redisServer=new RedisServer(6379);
         redisServer.startServer();
 

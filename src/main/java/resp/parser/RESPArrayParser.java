@@ -15,7 +15,17 @@ public class RESPArrayParser {
     private RESPArrayParser(String encodedString){
         this.reader= new BufferedReader(new InputStreamReader(new ByteArrayInputStream(encodedString.getBytes())));
     }
-    public Object parse() throws IOException {
+    public List<String> getCommandList(){
+        try {
+            Object object=parse();
+            if(!(object instanceof List))return null;
+            return (List<String>)object;
+        } catch (IOException e) {
+            System.out.println("Error in Commands parser");
+            return null;
+        }
+    }
+    private Object parse() throws IOException {
         int prefix = reader.read();
         if (prefix == -1) return null;
 

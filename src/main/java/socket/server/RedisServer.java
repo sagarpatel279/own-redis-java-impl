@@ -1,7 +1,8 @@
 package socket.server;
 
 
-import socket.client.ClientHandle;
+import resp.handlers.ClientHandler;
+import socket.client.Client;
 
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -10,6 +11,7 @@ import java.util.concurrent.Executors;
 
 public class RedisServer {
     private final int port;
+    private static int clientId;
     public RedisServer(int port){
         this.port=port;
     }
@@ -21,7 +23,8 @@ public class RedisServer {
             while (true) {
                 System.out.println("======Waiting for client=======");
                 Socket clientSocket = serverSocket.accept();
-                executor.submit(new ClientHandle(clientSocket));
+                Client client=new Client(clientSocket,clientSocket.getInputStream(),clientSocket.getOutputStream(),++clientId);
+                executor.submit(new ClientHandler(client));
             }
         } catch (Exception e) {
             System.out.println("Server exception: " + e.getMessage());

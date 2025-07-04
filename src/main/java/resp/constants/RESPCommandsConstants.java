@@ -1,6 +1,6 @@
 package resp.constants;
 
-public interface RESPConstantCommands{
+public interface RESPCommandsConstants {
     String C_PING="PING";
     String C_PONG="PONG";
     String C_OK="OK";
