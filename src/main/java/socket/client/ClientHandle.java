@@ -29,11 +29,8 @@ public class ClientHandle implements Runnable {
 
         try(OutputStream writer = clientSocket.getOutputStream()) {
             while(true) {
-                Object commands=null;
-                synchronized (this) {
-                    RESPArrayParser parser = RESPArrayParser.getBuilder().setInputStream(clientSocket.getInputStream()).build();
-                    commands = parser.parse();
-                }
+                RESPArrayParser parser = RESPArrayParser.getBuilder().setInputStream(clientSocket.getInputStream()).build();
+                Object commands = parser.parse();
                 String written = "";
                 List<Object> cmdParts = (List<Object>) commands;
                 String commandName = cmdParts.get(currentCommandIndex.get()).toString();
