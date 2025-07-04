@@ -39,22 +39,40 @@ public class ClientHandle implements Runnable {
                 RESPArrayParser parser = RESPArrayParser.getBuilder().setInputStream(clientSocket.getInputStream()).build();
                 Object commands = parser.parse();
 
-                if(!(commands instanceof List))throw new ClassCastException("Given Object class is not an instance of List class");
+                if(!(commands instanceof List))continue;
 
                 List<Object> cmdParts = (List<Object>) commands;
-                String commandName = cmdParts.get(currentIndx++).toString();
 
+                System.out.println("Size of Commands: "+cmdParts.size());
+                System.out.println("Commands List: "+commands);
+
+                System.out.println("Before Command Name Index is: "+currentIndx);
+                String commandName = cmdParts.get(currentIndx++).toString();
+                System.out.println("After Command Name Index is: "+currentIndx);
                 if(commandName.equalsIgnoreCase(C_PING)) {
                     handlePingCommand(writer);
                 }else if(commandName.equalsIgnoreCase(C_ECHO)){
+
+                    System.out.println("Before ECHO Command's Value Index is: "+currentIndx);
                     String returnValue=cmdParts.get(currentIndx++).toString();
+                    System.out.println("After ECHO Command's Value Index is: "+currentIndx);
                     handleEchoCommand(writer,returnValue);
                 }else if (commandName.equalsIgnoreCase(C_SET)) {
+                    System.out.println("Before SET Command'S KEY Index is: "+currentIndx);
                     Object key = cmdParts.get(currentIndx++);
+                    System.out.println("After SET Command'S KEY Index is: "+currentIndx);
+
+
+                    System.out.println("Before SET Command'S VALUE Index is: "+currentIndx);
                     Object value = cmdParts.get(currentIndx++);
+                    System.out.println("After SET Command'S VALUE Index is: "+currentIndx);
+
                     handleSetCommand(writer,key,value);
                 }else if (commandName.equalsIgnoreCase(C_GET)) {
+
+                    System.out.println("Before GET Command'S KEY Index is: "+currentIndx);
                     Object key = cmdParts.get(currentIndx++);
+                    System.out.println("After GET Command'S KEY Index is: "+currentIndx);
                     handleGetCommand(writer,key);
                 }
                 writer.flush();
