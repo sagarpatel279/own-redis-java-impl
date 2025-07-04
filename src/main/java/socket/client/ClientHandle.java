@@ -11,6 +11,7 @@ import resp.parser.RESPJSONParser;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Queue;
@@ -45,7 +46,7 @@ public class ClientHandle implements Runnable {
 
                 if(!(commands instanceof List))continue;
 
-                commandQueue= (Queue<Object>) commands;
+                commandQueue= new LinkedList<>((List<Object>) commands);
 
                 System.out.println("Size of Commands: "+commandQueue.size());
                 System.out.println("Commands List: "+commands);
