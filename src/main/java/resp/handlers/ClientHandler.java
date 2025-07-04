@@ -26,7 +26,8 @@ public class ClientHandler implements Runnable {
 
         try(OutputStream writer = client.getOutputStream();
                         InputStream stream=client.getInputStream()) {
-            while(stream.available()>0) {
+            while(client.getSocket().isConnected()) {
+                if(stream.available()<=0)continue;
                 RESPArrayParser parser = RESPArrayParser.getBuilder().setInputStream(stream).build();
                 commandHandler= new CommandHandler(parser.getCommandList());
 
