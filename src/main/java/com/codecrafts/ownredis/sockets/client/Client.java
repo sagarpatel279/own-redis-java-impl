@@ -1,13 +1,12 @@
 package com.codecrafts.ownredis.sockets.client;
 
 import lombok.Getter;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-@Getter
 
+@Getter
 public class Client {
     private final Socket socket;
     private final int clientId;
