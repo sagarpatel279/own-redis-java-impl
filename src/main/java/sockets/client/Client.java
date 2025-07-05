@@ -2,6 +2,7 @@ package sockets.client;
 
 import components.handlers.CommandHandler;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -12,10 +13,10 @@ public class Client {
     private final OutputStream outputStream;
     private final int clientId;
     private final CommandHandler commandHandler;
-    public Client(Socket socket, InputStream inputStream, OutputStream outputStream,CommandHandler commandHandler,int clientId) {
+    public Client(Socket socket,CommandHandler commandHandler,int clientId) throws IOException {
         this.socket=socket;
-        this.inputStream = inputStream;
-        this.outputStream = outputStream;
+        this.inputStream = socket.getInputStream();
+        this.outputStream = socket.getOutputStream();
         this.clientId=clientId;
         this.commandHandler=commandHandler;
     }
