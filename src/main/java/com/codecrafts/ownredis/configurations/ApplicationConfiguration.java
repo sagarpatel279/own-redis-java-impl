@@ -1,9 +1,9 @@
-package configurations;
+package com.codecrafts.ownredis.configurations;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ComponentScan(basePackages = "components")
+@ComponentScan(basePackages = "com.codecrafts.ownredis.components")
 public class ApplicationConfiguration {
 }

@@ -1,11 +1,11 @@
-package resp.encoder;
+package com.codecrafts.ownredis.resp.encoder;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import resp.constants.RESPEncodingConstants;
-import resp.constants.RESPParserConstants;
+import com.codecrafts.ownredis.resp.constants.RESPEncodingConstants;
+import com.codecrafts.ownredis.resp.constants.RESPParserConstants;
 
 import java.util.Iterator;
 

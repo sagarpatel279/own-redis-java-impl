@@ -1,14 +1,9 @@
-package components.handlers;
-
-import static resp.constants.RESPParserConstants.*;
-import static resp.constants.RESPCommandsConstants.*;
-import static resp.constants.RESPEncodingConstants.*;
+package com.codecrafts.ownredis.components.handlers;
 
 import lombok.RequiredArgsConstructor;
-import resp.parser.RESPArrayParser;
-import sockets.client.Client;
+import com.codecrafts.ownredis.resp.parser.RESPArrayParser;
+import com.codecrafts.ownredis.sockets.client.Client;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.SocketTimeoutException;

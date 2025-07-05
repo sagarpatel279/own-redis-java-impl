@@ -1,6 +1,5 @@
-package sockets.client;
+package com.codecrafts.ownredis.sockets.client;
 
-import components.handlers.CommandHandler;
 import lombok.Getter;
 
 import java.io.IOException;

@@ -1,21 +1,17 @@
-package sockets.server;
+package com.codecrafts.ownredis.sockets.server;
 
 
-import components.handlers.ClientHandler;
-import components.handlers.CommandHandler;
-import components.repos.ExpiringMap;
-import configurations.ApplicationConfiguration;
+import com.codecrafts.ownredis.components.handlers.ClientHandler;
+import com.codecrafts.ownredis.components.handlers.CommandHandler;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
-import sockets.client.Client;
+import com.codecrafts.ownredis.sockets.client.Client;
 
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 @Component

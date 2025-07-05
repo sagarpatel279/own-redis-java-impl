@@ -1,6 +1,6 @@
-package resp.parser;
+package com.codecrafts.ownredis.resp.parser;
 
-import static resp.constants.RESPParserConstants.*;
+import static com.codecrafts.ownredis.resp.constants.RESPParserConstants.*;
 
 import java.io.*;
 import java.util.ArrayList;

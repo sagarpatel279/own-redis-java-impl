@@ -1,18 +1,17 @@
-package components.handlers;
+package com.codecrafts.ownredis.components.handlers;
 
-import components.repos.ExpiringMap;
+import com.codecrafts.ownredis.components.repos.ExpiringMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
-import static resp.constants.RESPCommandsConstants.*;
-import static resp.constants.RESPEncodingConstants.*;
-import static resp.constants.RESPParserConstants.*;
+import static com.codecrafts.ownredis.resp.constants.RESPCommandsConstants.*;
+import static com.codecrafts.ownredis.resp.constants.RESPEncodingConstants.*;
+import static com.codecrafts.ownredis.resp.constants.RESPParserConstants.*;
 
 @Component
 @Scope("prototype")
