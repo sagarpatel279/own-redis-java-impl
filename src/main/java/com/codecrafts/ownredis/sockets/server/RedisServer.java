@@ -5,6 +5,7 @@ import com.codecrafts.ownredis.components.handlers.ClientHandler;
 import com.codecrafts.ownredis.components.handlers.CommandHandler;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import com.codecrafts.ownredis.sockets.client.Client;
@@ -23,7 +24,9 @@ public class RedisServer {
 
     @PostConstruct
     public void startServer() {
-        try (ServerSocket serverSocket = new ServerSocket(6389, 50, InetAddress.getByName("0.0.0.0"))) {
+        String host;
+        int port=Integer.parseInt("");
+        try (ServerSocket serverSocket = new ServerSocket(port, 50, InetAddress.getByName(host))) {
             serverSocket.setReuseAddress(true);
             System.out.println("Redis Server started on port 6389");
             while (true) {
