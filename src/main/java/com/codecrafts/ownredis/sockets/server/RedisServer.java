@@ -21,12 +21,15 @@ public class RedisServer {
     private final ApplicationContext context;
     private static int clientId;
     private final ExecutorService executor = Executors.newCachedThreadPool();
+    @Value("${ownredis.host}")
+    String host;
+    @Value("${ownredis.port}")
+    String port;
 
     @PostConstruct
     public void startServer() {
-        String host;
-        int port=Integer.parseInt("");
-        try (ServerSocket serverSocket = new ServerSocket(port, 50, InetAddress.getByName(host))) {
+
+        try (ServerSocket serverSocket = new ServerSocket(Integer.parseInt(port), 50, InetAddress.getByName(host))) {
             serverSocket.setReuseAddress(true);
             System.out.println("Redis Server started on port 6389");
             while (true) {
