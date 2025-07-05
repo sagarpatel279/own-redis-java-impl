@@ -9,38 +9,6 @@ import java.net.Socket;
 @Getter
 
 public class Client {
-//    private final Socket socket;
-//    private final InputStream inputStream;
-//    private final OutputStream outputStream;
-//    private final int clientId;
-//    private final CommandHandler commandHandler;
-//    public Client(Socket socket,CommandHandler commandHandler,int clientId) throws IOException {
-//        this.socket=socket;
-//        this.inputStream = socket.getInputStream();
-//        this.outputStream = socket.getOutputStream();
-//        this.clientId=clientId;
-//        this.commandHandler=commandHandler;
-//    }
-//
-//    public CommandHandler getCommandHandler() {
-//        return commandHandler;
-//    }
-//
-//    public Socket getSocket() {
-//        return socket;
-//    }
-//
-//    public InputStream getInputStream() {
-//        return inputStream;
-//    }
-//
-//    public OutputStream getOutputStream() {
-//        return outputStream;
-//    }
-//
-//    public int getClientId() {
-//        return clientId;
-//    }
     private final Socket socket;
     private final int clientId;
     private final InputStream inputStream;
