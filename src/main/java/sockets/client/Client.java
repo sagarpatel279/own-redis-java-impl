@@ -12,7 +12,7 @@ public class Client {
     private final OutputStream outputStream;
     private final int clientId;
     private final CommandHandler commandHandler;
-    public Client(Socket socket, InputStream inputStream, OutputStream outputStream,int clientId,CommandHandler commandHandler) {
+    public Client(Socket socket, InputStream inputStream, OutputStream outputStream,CommandHandler commandHandler,int clientId) {
         this.socket=socket;
         this.inputStream = inputStream;
         this.outputStream = outputStream;

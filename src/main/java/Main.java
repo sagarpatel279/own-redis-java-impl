@@ -6,8 +6,7 @@ import java.net.UnknownHostException;
 
 public class Main {
     public static void main(String[] args) throws UnknownHostException {
-        AnnotationConfigApplicationContext context =
-                new AnnotationConfigApplicationContext(ApplicationConfiguration.class);
+
         RedisServer redisServer=new RedisServer(6389);
         redisServer.startServer();
 //        String input = "*1\r\n$4\r\nPING\r\n";
