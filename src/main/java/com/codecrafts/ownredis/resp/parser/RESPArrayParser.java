@@ -5,30 +5,39 @@ import static com.codecrafts.ownredis.resp.constants.RESPParserConstants.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class RESPArrayParser {
     private final BufferedReader reader;
+
     private RESPArrayParser(InputStream inputStream) {
         this.reader = new BufferedReader(new InputStreamReader(inputStream));
     }
-    private RESPArrayParser(String encodedString){
-        this.reader= new BufferedReader(new InputStreamReader(new ByteArrayInputStream(encodedString.getBytes())));
+
+    private RESPArrayParser(String encodedString) {
+        this.reader = new BufferedReader(
+                new InputStreamReader(new ByteArrayInputStream(encodedString.getBytes()))
+        );
     }
-    public List<String> getCommandList(){
+
+    public List<String> getCommandList() {
         try {
-            Object object=parse();
-            if(!(object instanceof List))return null;
-            return (List<String>)object;
+            Object parsed = parse();
+            if (parsed instanceof List<?> list) {
+                return list.stream()
+                        .map(String::valueOf)
+                        .collect(Collectors.toList());
+            }
         } catch (IOException e) {
-            System.out.println("Error in Commands parser");
-            return null;
+            System.err.println("Error in RESP command parser: " + e.getMessage());
         }
+        return List.of();
     }
+
     private Object parse() throws IOException {
         int prefix = reader.read();
         if (prefix == -1) return null;
-
-        String prefixStr=String.valueOf((char)prefix);
+        String prefixStr=String.valueOf((char) prefix);
         return switch (prefixStr) {
             case SIMPLE_STRING -> parseSimpleString();
             case ERROR_STRING -> parseError();
@@ -38,36 +47,43 @@ public class RESPArrayParser {
             default -> throw new IOException("Unknown RESP type: " + (char) prefix);
         };
     }
-    public static Builder getBuilder(){
+
+    public static Builder getBuilder() {
         return new Builder();
     }
-    public static class Builder{
+
+    public static class Builder {
         private InputStream stream;
         private String encodedString;
-        private Builder(){}
-        public Builder setInputStream(InputStream stream){
-            this.stream=stream;
+
+        private Builder() {}
+
+        public Builder setInputStream(InputStream stream) {
+            this.stream = stream;
             return this;
         }
-        public Builder setEncodedString(String encodedString){
-            this.encodedString=encodedString;
+
+        public Builder setEncodedString(String encodedString) {
+            this.encodedString = encodedString;
             return this;
         }
-        public RESPArrayParser build(){
-            if(stream==null && (encodedString==null || encodedString.isBlank())){
-                throw new NullPointerException("InputStream must not be null");
+
+        public RESPArrayParser build() {
+            if (stream != null) {
+                return new RESPArrayParser(stream);
+            } else if (encodedString != null && !encodedString.isBlank()) {
+                return new RESPArrayParser(encodedString);
             }
-            if(stream!=null)
-                return new RESPArrayParser(this.stream);
-            return new RESPArrayParser(this.encodedString);
+            throw new IllegalStateException("Either InputStream or EncodedString must be provided.");
         }
     }
+
     private String parseSimpleString() throws IOException {
-        return readLine(); // after '+'
+        return readLine();
     }
 
     private String parseError() throws IOException {
-        throw new IOException("RESP Error: " + readLine());
+        throw new IOException("RESP Error from client: " + readLine());
     }
 
     private Long parseInteger() throws IOException {
@@ -76,7 +92,8 @@ public class RESPArrayParser {
 
     private String parseBulkString() throws IOException {
         int length = Integer.parseInt(readLine());
-        if (length == -1) return null; // Null bulk string
+        if (length == -1) return null;
+
         char[] buffer = new char[length];
         int read = reader.read(buffer, 0, length);
         reader.readLine(); // consume trailing \r\n
@@ -85,7 +102,8 @@ public class RESPArrayParser {
 
     private List<Object> parseArray() throws IOException {
         int count = Integer.parseInt(readLine());
-        if (count == -1) return null; // Null array
+        if (count == -1) return null;
+
         List<Object> elements = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             elements.add(parse());
@@ -95,7 +113,7 @@ public class RESPArrayParser {
 
     private String readLine() throws IOException {
         String line = reader.readLine();
-        if (line == null) throw new IOException("Unexpected end of stream");
+        if (line == null) throw new EOFException("Unexpected end of stream while reading RESP line.");
         return line;
     }
 }
