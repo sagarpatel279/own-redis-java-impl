@@ -1,11 +1,13 @@
-package socket.server;
+package sockets.server;
 
 
-import resp.handlers.ClientHandler;
-import socket.client.Client;
+import components.handlers.ClientHandler;
+import sockets.client.Client;
 
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -15,14 +17,18 @@ public class RedisServer {
     public RedisServer(int port){
         this.port=port;
     }
-    public void startServer(){
+    public void startServer() throws UnknownHostException {
         ExecutorService executor= Executors.newCachedThreadPool();
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
+        InetAddress localAddress = InetAddress.getByName("0.0.0.0"); // or any other local IP
+        int backlog = 50;
+        try (ServerSocket serverSocket = new ServerSocket(port,backlog,localAddress)) {
             serverSocket.setReuseAddress(true);
-            System.out.println("Server running on port " + port);
+            System.out.println("Server started on: " + serverSocket.getInetAddress().getHostAddress() + ":" + serverSocket.getLocalPort());
             while (true) {
                 System.out.println("======Waiting for client=======");
                 Socket clientSocket = serverSocket.accept();
+                System.out.println("Client connected....");
+//                clientSocket.setSoTimeout(20000);//20 Seconds timeout for each user
                 Client client=new Client(clientSocket,clientSocket.getInputStream(),clientSocket.getOutputStream(),++clientId);
                 executor.submit(new ClientHandler(client));
             }

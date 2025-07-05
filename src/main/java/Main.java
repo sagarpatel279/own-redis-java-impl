@@ -1,12 +1,15 @@
-import socket.server.RedisServer;
+import configurations.ApplicationConfiguration;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import sockets.server.RedisServer;
 
+import java.net.UnknownHostException;
 
 public class Main {
-    public static void main(String[] args){
-        RedisServer redisServer=new RedisServer(6379);
+    public static void main(String[] args) throws UnknownHostException {
+        AnnotationConfigApplicationContext context =
+                new AnnotationConfigApplicationContext(ApplicationConfiguration.class);
+        RedisServer redisServer=new RedisServer(6389);
         redisServer.startServer();
-
-
 //        String input = "*1\r\n$4\r\nPING\r\n";
 //        InputStream stream = new ByteArrayInputStream(input.getBytes());
 //        RESPArrayParser parser=RESPArrayParser.getBuilder().setEncodedString(input).build();

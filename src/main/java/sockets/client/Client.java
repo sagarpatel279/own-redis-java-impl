@@ -1,4 +1,6 @@
-package socket.client;
+package sockets.client;
+
+import components.handlers.CommandHandler;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -9,11 +11,17 @@ public class Client {
     private final InputStream inputStream;
     private final OutputStream outputStream;
     private final int clientId;
-    public Client(Socket socket, InputStream inputStream, OutputStream outputStream,int clientId) {
+    private final CommandHandler commandHandler;
+    public Client(Socket socket, InputStream inputStream, OutputStream outputStream,int clientId,CommandHandler commandHandler) {
         this.socket=socket;
         this.inputStream = inputStream;
         this.outputStream = outputStream;
         this.clientId=clientId;
+        this.commandHandler=commandHandler;
+    }
+
+    public CommandHandler getCommandHandler() {
+        return commandHandler;
     }
 
     public Socket getSocket() {

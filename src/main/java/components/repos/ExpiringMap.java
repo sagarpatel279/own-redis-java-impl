@@ -1,7 +1,10 @@
-package repos;
+package components.repos;
+
+import org.springframework.stereotype.Component;
 
 import java.util.concurrent.*;
 
+@Component
 public class ExpiringMap <K,V>{
     private final ConcurrentMap<K,V> concurrentMap=new ConcurrentHashMap<>();
     private final ScheduledExecutorService scheduler= Executors.newScheduledThreadPool(1);
@@ -18,4 +21,5 @@ public class ExpiringMap <K,V>{
     public boolean containsKey(K key){
         return concurrentMap.containsKey(key);
     }
+
 }

@@ -1,23 +1,27 @@
-package resp.handlers;
+package components.handlers;
 
-import repos.ExpiringMap;
+import components.repos.ExpiringMap;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 import static resp.constants.RESPCommandsConstants.*;
 import static resp.constants.RESPEncodingConstants.*;
 import static resp.constants.RESPParserConstants.*;
 
-
 public class CommandHandler {
-    private final ExpiringMap<Object,Object> expiringMap=new ExpiringMap<>();
-    private ConcurrentLinkedQueue<Object> commandQueue;
-
-    public CommandHandler(List<String> commandList){
-        this.commandQueue=new ConcurrentLinkedQueue<>(commandList);
+    private final ExpiringMap<Object,Object> expiringMap;
+    private final Queue<Object> commandQueue=new LinkedList<>();
+    public CommandHandler(ExpiringMap<Object,Object> expiringMap){
+        this.expiringMap=expiringMap;
     }
+    public void setCommandQueue(List<String> commandList) {
+        System.out.println("Command List: "+commandList);
+        this.commandQueue.addAll(commandList);
+    }
+
     public String handleEchoCommand(){
         String returnValue= pullCommand().toString();
         return BULK_STRING+returnValue.length()+C_CRLF+returnValue+C_CRLF;
@@ -47,11 +51,11 @@ public class CommandHandler {
         Object key = pullCommand();
         Object value = pullCommand();
         if(isCommandExist()) {
-            Object expiryType= pullCommand();
+            String expiryType= pullCommand().toString();
             TimeUnit timeUnit;
-            if (expiryType.equals(C_PX)) {
+            if (expiryType.equalsIgnoreCase(C_PX)) {
                 timeUnit = TimeUnit.MILLISECONDS;
-            } else if (expiryType.equals(C_EX)) {
+            } else if (expiryType.equalsIgnoreCase(C_EX)) {
                 timeUnit = TimeUnit.SECONDS;
             } else {
                 throw new IllegalArgumentException("Expiry type not supported: " + expiryType);

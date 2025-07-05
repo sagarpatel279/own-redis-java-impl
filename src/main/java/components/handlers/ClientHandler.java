@@ -1,19 +1,19 @@
-package resp.handlers;
+package components.handlers;
 
 import static resp.constants.RESPParserConstants.*;
 import static resp.constants.RESPCommandsConstants.*;
 import static resp.constants.RESPEncodingConstants.*;
 
 import resp.parser.RESPArrayParser;
-import socket.client.Client;
+import sockets.client.Client;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.SocketTimeoutException;
 
 public class ClientHandler implements Runnable {
     private final Client client;
-    private CommandHandler commandHandler;
     public ClientHandler(Client client) {
         this.client = client;
     }
@@ -28,19 +28,19 @@ public class ClientHandler implements Runnable {
                         InputStream stream=client.getInputStream()) {
             while(client.getSocket().isConnected()) {
                 if(stream.available()<=0)continue;
+                System.out.println("Handled By Thread: "+Thread.currentThread().getName());
                 RESPArrayParser parser = RESPArrayParser.getBuilder().setInputStream(stream).build();
-                commandHandler= new CommandHandler(parser.getCommandList());
-
-                String commandName = commandHandler.pullCommand().toString();
+                client.getCommandHandler().setCommandQueue(parser.getCommandList());
+                String commandName = client.getCommandHandler().pullCommand().toString();
                 String response;
                 if(commandName.equalsIgnoreCase(C_PING)) {
-                    response =  commandHandler.handlePingCommand();
+                    response =  client.getCommandHandler().handlePingCommand();
                 }else if(commandName.equalsIgnoreCase(C_ECHO)){
-                    response = commandHandler.handleEchoCommand();
+                    response = client.getCommandHandler().handleEchoCommand();
                 }else if (commandName.equalsIgnoreCase(C_SET)) {
-                    response = commandHandler.handleSetCommand();
+                    response = client.getCommandHandler().handleSetCommand();
                 }else if (commandName.equalsIgnoreCase(C_GET)) {
-                    response = commandHandler.handleGetCommand();
+                    response = client.getCommandHandler().handleGetCommand();
                 }else{
                     response= BULK_STRING+NULL_VALUE;
                 }
@@ -48,11 +48,21 @@ public class ClientHandler implements Runnable {
                 writer.flush();
             }
 
+        }catch (SocketTimeoutException ste){
+            System.out.println("Time out for Client: "+client.getSocket().getRemoteSocketAddress());
+            try {
+                client.getSocket().getOutputStream().write("Timeout..please reconnect".getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException(e.getMessage());
+            }
         }catch (Exception e) {
             System.out.println("Client handler error: " + e.getMessage());
         }finally {
             try {
-                client.getSocket().close();
+                if(!client.getSocket().isClosed()) {
+                    System.out.println("Client: "+client.getSocket().getRemoteSocketAddress()+" has been closed...");
+                    client.getSocket().close();
+                }
             } catch (IOException e) {
                 System.out.println("Close error: " + e.getMessage());
             }
