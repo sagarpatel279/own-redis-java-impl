@@ -2,6 +2,7 @@ package com.codecrafts.ownredis.components.handlers;
 
 import com.codecrafts.ownredis.components.repos.ExpiringMap;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +20,10 @@ import static com.codecrafts.ownredis.resp.constants.RESPParserConstants.*;
 public class CommandHandler {
     private final ExpiringMap<Object, Object> expiringMap;
     private final Queue<Object> commandQueue = new LinkedList<>();
-
+    @Value("${ownredis.dir}")
+    private String dir;
+    @Value("${ownredis.dbfilename}")
+    private String dbfilename;
     public void setCommandQueue(List<String> commandList) {
         this.commandQueue.clear();
         this.commandQueue.addAll(commandList);
@@ -38,8 +42,21 @@ public class CommandHandler {
             }
             case C_SET -> handleSetCommand();
             case C_GET -> handleGetCommand();
+            case C_CONFIG -> handleConfigCommand();
             default -> BULK_STRING + NULL_VALUE;
         };
+    }
+
+    private String handleConfigCommand() {
+        String response=BULK_STRING+NULL_VALUE;
+        if(pullCommand().toString().equalsIgnoreCase(C_GET)){
+            if(pullCommand().toString().equalsIgnoreCase(C_DIR)){
+                response=ARRAY+CRLF+BULK_STRING+C_DIR+CRLF+BULK_STRING+dir.length()+CRLF+dir+CRLF;
+            }else{
+                response=ARRAY+CRLF+BULK_STRING+
+            }
+        }
+        return response;
     }
 
     private String handleSetCommand() {

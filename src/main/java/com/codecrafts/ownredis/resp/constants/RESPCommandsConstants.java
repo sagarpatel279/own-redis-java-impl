@@ -16,6 +16,9 @@ public interface RESPCommandsConstants {
     String C_CR="\r";
     String C_LF="\n";
     String C_CRLF="\r\n";
+    String C_CONFIG="CONFIG";
+    String C_DIR="DIR";
+    String C_DBFILENAME="DBFILENAME";
 
 
 }
