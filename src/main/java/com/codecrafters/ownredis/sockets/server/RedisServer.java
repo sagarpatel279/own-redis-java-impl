@@ -23,12 +23,12 @@ public class RedisServer implements CommandLineRunner {
     private static int clientId;
     private final ExecutorService executor = Executors.newCachedThreadPool();
 //    @Value("${ownredis.host:0.0.0.0}")
-    String host="0.0.0.0";
+//    String host="0.0.0.0";
 //    @Value("${ownredis.port:6379}")
     int port=6379;
 
     public void startServer() {
-        try (ServerSocket serverSocket = new ServerSocket(port, 50, InetAddress.getByName(host))) {
+        try (ServerSocket serverSocket = new ServerSocket(port)) {
             serverSocket.setReuseAddress(true);
             System.out.println("Redis Server started on port: "+port);
             while (true) {
