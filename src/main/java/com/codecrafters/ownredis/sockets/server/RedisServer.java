@@ -1,9 +1,9 @@
 package com.codecrafters.ownredis.sockets.server;
 
 
-import com.codecrafts.ownredis.components.handlers.ClientHandler;
-import com.codecrafts.ownredis.components.handlers.CommandHandler;
-import com.codecrafts.ownredis.sockets.client.Client;
+import com.codecrafters.ownredis.components.handlers.ClientHandler;
+import com.codecrafters.ownredis.components.handlers.CommandHandler;
+import com.codecrafters.ownredis.sockets.client.Client;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

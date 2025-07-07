@@ -1,7 +1,7 @@
 package com.codecrafters.ownredis.components.handlers;
 
-import com.codecrafts.ownredis.resp.parser.RESPArrayParser;
-import com.codecrafts.ownredis.sockets.client.Client;
+import com.codecrafters.ownredis.resp.parser.RESPArrayParser;
+import com.codecrafters.ownredis.sockets.client.Client;
 import lombok.RequiredArgsConstructor;
 
 import java.io.InputStream;

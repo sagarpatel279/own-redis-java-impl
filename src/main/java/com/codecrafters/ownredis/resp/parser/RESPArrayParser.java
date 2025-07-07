@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.codecrafts.ownredis.resp.constants.RESPParserConstants.*;
+import static com.codecrafters.ownredis.resp.constants.RESPParserConstants.*;
 
 public class RESPArrayParser {
     private final BufferedReader reader;

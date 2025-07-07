@@ -1,6 +1,6 @@
 package com.codecrafters.ownredis.components.handlers;
 
-import com.codecrafts.ownredis.components.repos.ExpiringMap;
+import com.codecrafters.ownredis.components.repos.ExpiringMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 
-import static com.codecrafts.ownredis.resp.constants.RESPCommandsConstants.*;
-import static com.codecrafts.ownredis.resp.constants.RESPEncodingConstants.*;
-import static com.codecrafts.ownredis.resp.constants.RESPParserConstants.*;
+import static com.codecrafters.ownredis.resp.constants.RESPCommandsConstants.*;
+import static com.codecrafters.ownredis.resp.constants.RESPEncodingConstants.*;
+import static com.codecrafters.ownredis.resp.constants.RESPParserConstants.*;
 
 @Component
 @Scope("prototype")
