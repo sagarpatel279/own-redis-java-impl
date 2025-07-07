@@ -1,14 +1,14 @@
-package com.codecrafts.ownredis.sockets.server;
+package com.codecrafters.ownredis.sockets.server;
 
 
 import com.codecrafts.ownredis.components.handlers.ClientHandler;
 import com.codecrafts.ownredis.components.handlers.CommandHandler;
+import com.codecrafts.ownredis.sockets.client.Client;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-import com.codecrafts.ownredis.sockets.client.Client;
 
 import java.net.InetAddress;
 import java.net.ServerSocket;

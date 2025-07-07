@@ -1,6 +1,7 @@
-package com.codecrafts.ownredis.sockets.client;
+package com.codecrafters.ownredis.sockets.client;
 
 import lombok.Getter;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

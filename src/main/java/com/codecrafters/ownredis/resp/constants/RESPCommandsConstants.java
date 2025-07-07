@@ -1,4 +1,4 @@
-package com.codecrafts.ownredis.resp.constants;
+package com.codecrafters.ownredis.resp.constants;
 
 public interface RESPCommandsConstants {
     String C_PING="PING";

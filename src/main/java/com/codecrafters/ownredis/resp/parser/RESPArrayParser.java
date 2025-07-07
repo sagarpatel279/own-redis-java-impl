@@ -1,11 +1,11 @@
-package com.codecrafts.ownredis.resp.parser;
-
-import static com.codecrafts.ownredis.resp.constants.RESPParserConstants.*;
+package com.codecrafters.ownredis.resp.parser;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.codecrafts.ownredis.resp.constants.RESPParserConstants.*;
 
 public class RESPArrayParser {
     private final BufferedReader reader;

@@ -1,4 +1,4 @@
-package com.codecrafts.ownredis.components.repos;
+package com.codecrafters.ownredis.components.repos;
 
 import org.springframework.stereotype.Component;
 

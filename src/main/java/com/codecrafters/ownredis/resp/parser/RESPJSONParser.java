@@ -1,12 +1,11 @@
-package com.codecrafts.ownredis.resp.parser;
+package com.codecrafters.ownredis.resp.parser;
 
 import com.codecrafts.ownredis.resp.constants.RESPEncodingConstants;
-
+import com.codecrafts.ownredis.resp.constants.RESPParserConstants;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.codecrafts.ownredis.resp.constants.RESPParserConstants;
 
 import java.io.BufferedReader;
 import java.io.IOException;

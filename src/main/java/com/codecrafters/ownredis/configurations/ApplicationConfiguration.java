@@ -1,4 +1,4 @@
-package com.codecrafts.ownredis.configurations;
+package com.codecrafters.ownredis.configurations;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
