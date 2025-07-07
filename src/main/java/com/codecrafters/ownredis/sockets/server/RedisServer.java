@@ -46,6 +46,14 @@ public class RedisServer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        startServer();
+        Thread redisThread = new Thread(() -> {
+            try {
+                startServer();
+            } catch (Exception e) {
+                System.err.println("Redis server error: " + e.getMessage());
+            }
+        });
+        redisThread.setName("Redis-Socket-Server");
+        redisThread.start();
     }
 }
