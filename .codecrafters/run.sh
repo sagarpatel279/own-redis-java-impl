@@ -8,4 +8,4 @@
 
 set -e # Exit on failure
 
-exec java -jar /tmp/codecrafters-build-redis-java/codecrafters-build-redis-java.jar "$@"
+exec java -jar /tmp/codecrafters-build-redis-java/codecrafters-redis.jar "$@"

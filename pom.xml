@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.codecrafters</groupId>
-    <artifactId>codecrafters-redis-java</artifactId>
+    <artifactId>codecrafters-build-redis-java</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>codecrafters-build-redis-java</name>
     <description>codecrafters-build-redis-java</description>
@@ -74,7 +74,6 @@
     </dependencies>
 
     <build>
-        <finalName>codecrafters-build-redis-java</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
