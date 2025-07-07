@@ -28,7 +28,6 @@ public class RedisServer {
 
     @PostConstruct
     public void startServer() {
-
         try (ServerSocket serverSocket = new ServerSocket(Integer.parseInt(port), 50, InetAddress.getByName(host))) {
             serverSocket.setReuseAddress(true);
             System.out.println("Redis Server started on port 6389");
