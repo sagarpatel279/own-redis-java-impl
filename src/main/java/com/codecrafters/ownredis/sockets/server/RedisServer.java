@@ -25,14 +25,16 @@ public class RedisServer implements CommandLineRunner {
 //    @Value("${ownredis.host:0.0.0.0}")
     String host="0.0.0.0";
 //    @Value("${ownredis.port:6379}")
-    String port;
+    int port=6379;
 
     public void startServer() {
-        try (ServerSocket serverSocket = new ServerSocket(6379)) {
+        try (ServerSocket serverSocket = new ServerSocket(port, 50, InetAddress.getByName(host))) {
             serverSocket.setReuseAddress(true);
-            System.out.println("Redis Server started on port 6389");
+            System.out.println("Redis Server started on port: "+port);
             while (true) {
+                System.out.println("==================================Waiting for client...");
                 Socket clientSocket = serverSocket.accept();
+                System.out.println("Client: "+clientSocket.getRemoteSocketAddress()+" has connected...");
                 Client client = new Client(clientSocket, ++clientId);
                 CommandHandler handler = context.getBean(CommandHandler.class);
                 executor.submit(new ClientHandler(client, handler));
