@@ -5,9 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class CodecraftersBuildRedisJavaApplication {
-
     public static void main(String[] args) {
-        SpringApplication.run(CodecraftersBuildRedisJavaApplication.class, args);
+        SpringApplication.run(CodecraftersBuildRedisJavaApplication.class);
     }
 
 }

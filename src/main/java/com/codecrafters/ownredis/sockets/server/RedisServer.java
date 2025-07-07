@@ -7,6 +7,7 @@ import com.codecrafters.ownredis.sockets.client.Client;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +18,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 @Component
 @RequiredArgsConstructor
-public class RedisServer {
+public class RedisServer implements CommandLineRunner {
     private final ApplicationContext context;
     private static int clientId;
     private final ExecutorService executor = Executors.newCachedThreadPool();
@@ -26,7 +27,6 @@ public class RedisServer {
     @Value("${ownredis.port}")
     String port;
 
-    @PostConstruct
     public void startServer() {
         try (ServerSocket serverSocket = new ServerSocket(Integer.parseInt(port), 50, InetAddress.getByName(host))) {
             serverSocket.setReuseAddress(true);
@@ -40,5 +40,10 @@ public class RedisServer {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        startServer();
     }
 }
