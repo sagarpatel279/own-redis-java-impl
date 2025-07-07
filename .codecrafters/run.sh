@@ -8,4 +8,4 @@
 
 set -e # Exit on failure
 
-exec java -jar /target/*.jar "$@"
+exec java -jar target/*.jar "$@"

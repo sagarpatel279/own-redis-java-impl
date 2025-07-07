@@ -8,4 +8,4 @@
 
 set -e # Exit on failure
 
-mvn -B package -Ddir=/target
+mvn -B package -Ddir=target
