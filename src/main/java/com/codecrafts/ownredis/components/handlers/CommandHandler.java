@@ -27,6 +27,7 @@ public class CommandHandler {
     public void setCommandQueue(List<String> commandList) {
         this.commandQueue.clear();
         this.commandQueue.addAll(commandList);
+        System.out.println(commandList);
     }
 
     public Object pullCommand() {
@@ -51,9 +52,9 @@ public class CommandHandler {
         String response=BULK_STRING+NULL_VALUE;
         if(pullCommand().toString().equalsIgnoreCase(C_GET)){
             if(pullCommand().toString().equalsIgnoreCase(C_DIR)){
-                response=ARRAY+CRLF+BULK_STRING+C_DIR+CRLF+BULK_STRING+dir.length()+CRLF+dir+CRLF;
+                response=ARRAY+2+CRLF+BULK_STRING+C_DIR.length()+CRLF+C_DIR+CRLF+BULK_STRING+dir.length()+CRLF+dir+CRLF;
             }else{
-                response=ARRAY+CRLF+BULK_STRING+
+                response=ARRAY+2+CRLF+BULK_STRING+C_DBFILENAME.length()+CRLF+C_DBFILENAME+ CRLF+BULK_STRING+dbfilename.length()+CRLF+dbfilename+CRLF;
             }
         }
         return response;

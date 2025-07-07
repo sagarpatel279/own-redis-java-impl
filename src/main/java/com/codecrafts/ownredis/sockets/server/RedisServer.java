@@ -26,7 +26,7 @@ public class RedisServer {
     @Value("${ownredis.port}")
     String port;
 
-//    @PostConstruct
+    @PostConstruct
     public void startServer() {
 
         try (ServerSocket serverSocket = new ServerSocket(Integer.parseInt(port), 50, InetAddress.getByName(host))) {
