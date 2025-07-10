@@ -53,7 +53,7 @@ public class CommandHandler {
             if(pullCommand().toString().equalsIgnoreCase(C_DIR)){
                 response=ARRAY+CRLF+BULK_STRING+C_DIR+CRLF+BULK_STRING+dir.length()+CRLF+dir+CRLF;
             }else{
-                response=ARRAY+CRLF+BULK_STRING+
+//                response=ARRAY+CRLF+BULK_STRING+
             }
         }
         return response;
