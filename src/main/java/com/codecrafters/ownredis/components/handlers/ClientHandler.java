@@ -1,12 +1,13 @@
-package com.codecrafts.ownredis.components.handlers;
+package com.codecrafters.ownredis.components.handlers;
 
+import com.codecrafters.ownredis.resp.parser.RESPArrayParser;
+import com.codecrafters.ownredis.sockets.client.Client;
 import lombok.RequiredArgsConstructor;
-import com.codecrafts.ownredis.resp.parser.RESPArrayParser;
-import com.codecrafts.ownredis.sockets.client.Client;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.SocketTimeoutException;
+
 @RequiredArgsConstructor
 public class ClientHandler implements Runnable {
     private final Client client;

@@ -1,6 +1,6 @@
-package com.codecrafts.ownredis.components.handlers;
+package com.codecrafters.ownredis.components.handlers;
 
-import com.codecrafts.ownredis.components.repos.ExpiringMap;
+import com.codecrafters.ownredis.components.repos.ExpiringMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
@@ -10,9 +10,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
-import static com.codecrafts.ownredis.resp.constants.RESPCommandsConstants.*;
-import static com.codecrafts.ownredis.resp.constants.RESPEncodingConstants.*;
-import static com.codecrafts.ownredis.resp.constants.RESPParserConstants.*;
+
+import static com.codecrafters.ownredis.resp.constants.RESPCommandsConstants.*;
+import static com.codecrafters.ownredis.resp.constants.RESPEncodingConstants.*;
+import static com.codecrafters.ownredis.resp.constants.RESPParserConstants.*;
 
 @Component
 @Scope("prototype")
@@ -27,6 +28,7 @@ public class CommandHandler {
     public void setCommandQueue(List<String> commandList) {
         this.commandQueue.clear();
         this.commandQueue.addAll(commandList);
+        System.out.println(commandList);
     }
 
     public Object pullCommand() {
@@ -51,9 +53,10 @@ public class CommandHandler {
         String response=BULK_STRING+NULL_VALUE;
         if(pullCommand().toString().equalsIgnoreCase(C_GET)){
             if(pullCommand().toString().equalsIgnoreCase(C_DIR)){
-                response=ARRAY+CRLF+BULK_STRING+C_DIR+CRLF+BULK_STRING+dir.length()+CRLF+dir+CRLF;
+                response=ARRAY+2+CRLF+BULK_STRING+C_DIR.length()+CRLF+C_DIR+CRLF+BULK_STRING+dir.length()+CRLF+dir+CRLF;
             }else{
-//                response=ARRAY+CRLF+BULK_STRING+
+
+                response=ARRAY+2+CRLF+BULK_STRING+C_DBFILENAME.length()+CRLF+C_DBFILENAME+ CRLF+BULK_STRING+dbfilename.length()+CRLF+dbfilename+CRLF;
             }
         }
         return response;
