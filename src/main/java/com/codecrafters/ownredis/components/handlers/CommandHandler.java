@@ -1,6 +1,7 @@
 package com.codecrafters.ownredis.components.handlers;
 
 import com.codecrafters.ownredis.components.repos.ExpiringMap;
+import com.codecrafters.ownredis.configurations.RDBConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
@@ -21,10 +22,7 @@ import static com.codecrafters.ownredis.resp.constants.RESPParserConstants.*;
 public class CommandHandler {
     private final ExpiringMap<Object, Object> expiringMap;
     private final Queue<Object> commandQueue = new LinkedList<>();
-    @Value("${ownredis.dir}")
-    private String dir;
-    @Value("${ownredis.dbfilename}")
-    private String dbfilename;
+    private final RDBConfig rdbConfig;
     public void setCommandQueue(List<String> commandList) {
         this.commandQueue.clear();
         this.commandQueue.addAll(commandList);
@@ -53,9 +51,9 @@ public class CommandHandler {
         String response=BULK_STRING+NULL_VALUE;
         if(pullCommand().toString().equalsIgnoreCase(C_GET)){
             if(pullCommand().toString().equalsIgnoreCase(C_DIR)){
-                response=ARRAY+2+CRLF+BULK_STRING+C_DIR.length()+CRLF+C_DIR+CRLF+BULK_STRING+dir.length()+CRLF+dir+CRLF;
+                response=ARRAY+2+CRLF+BULK_STRING+C_DIR.length()+CRLF+C_DIR+CRLF+BULK_STRING+rdbConfig.getDir().length()+CRLF+rdbConfig.getDir()+CRLF;
             }else{
-                response=ARRAY+2+CRLF+BULK_STRING+C_DBFILENAME.length()+CRLF+C_DBFILENAME+ CRLF+BULK_STRING+dbfilename.length()+CRLF+dbfilename+CRLF;
+                response=ARRAY+2+CRLF+BULK_STRING+C_DBFILENAME.length()+CRLF+C_DBFILENAME+ CRLF+BULK_STRING+rdbConfig.getDbFileName().length()+CRLF+rdbConfig.getDbFileName()+CRLF;
             }
         }
         return response;
