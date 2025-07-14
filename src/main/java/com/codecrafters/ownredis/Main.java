@@ -6,7 +6,7 @@ import com.codecrafters.ownredis.sockets.server.RedisServer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-public class CodecraftersBuildRedisJavaApplication {
+public class Main {
 
     public static void main(String[] args) {
         String dir=null;
