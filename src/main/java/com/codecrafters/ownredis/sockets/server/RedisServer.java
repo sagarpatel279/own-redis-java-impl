@@ -36,18 +36,4 @@ public class RedisServer {
             e.printStackTrace();
         }
     }
-
-//    @Override
-//    public void run(String... args) throws Exception {
-//
-//        Thread redisThread = new Thread(() -> {
-//            try {
-//                startServer();
-//            } catch (Exception e) {
-//                System.err.println("Redis server error: " + e.getMessage());
-//            }
-//        });
-//        redisThread.setName("Redis-Socket-Server");
-//        redisThread.start();
-//    }
 }
