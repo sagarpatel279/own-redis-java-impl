@@ -1,4 +1,4 @@
-package com.codecrafters.ownredis.configurations;
+package com.codecrafters.ownredis.components.config;
 
 import org.springframework.stereotype.Component;
 

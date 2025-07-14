@@ -1,9 +1,8 @@
 package com.codecrafters.ownredis.components.handlers;
 
 import com.codecrafters.ownredis.components.repos.ExpiringMap;
-import com.codecrafters.ownredis.configurations.RDBConfig;
+import com.codecrafters.ownredis.components.config.RDBConfig;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
