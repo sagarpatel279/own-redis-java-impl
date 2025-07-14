@@ -111,6 +111,7 @@
                 <version>3.5.3</version>
                 <configuration>
                     <skip>true</skip>
+                    <mainClass>com.codecrafters.ownredis.CodecraftersBuildRedisJavaApplication</mainClass>
                 </configuration>
             </plugin>
         </plugins>
