@@ -110,7 +110,6 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>3.5.3</version>
                 <configuration>
-                    <skip>true</skip>
                     <mainClass>com.codecrafters.ownredis.Main</mainClass>
                 </configuration>
             </plugin>
