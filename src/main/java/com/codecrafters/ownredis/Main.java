@@ -1,5 +1,6 @@
 package com.codecrafters.ownredis;
 
+import com.codecrafters.ownredis.components.handlers.RDBFileHandler;
 import com.codecrafters.ownredis.configurations.ApplicationConfiguration;
 import com.codecrafters.ownredis.components.config.RDBConfig;
 import com.codecrafters.ownredis.sockets.server.RedisServer;
@@ -25,6 +26,8 @@ public class Main {
         RDBConfig rdbConfig=context.getBean(RDBConfig.class);
         rdbConfig.setDir(dir);
         rdbConfig.setDbFileName(dbFileName);
+        RDBFileHandler handler=context.getBean(RDBFileHandler.class);
+        handler.readKeysFromRDBFile();
         RedisServer redisServer=new RedisServer(context);
         redisServer.startServer();
     }
