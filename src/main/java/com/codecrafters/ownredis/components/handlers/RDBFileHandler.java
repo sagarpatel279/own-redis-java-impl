@@ -20,6 +20,8 @@ public class RDBFileHandler {
     private final RDBConfig rdbConfig;
     private final ExpiringMap<Object,Object> store;
     public void readKeysFromRDBFile(){
+        if(rdbConfig.getDir()==null || rdbConfig.getDir().isBlank()|| rdbConfig.getDbFileName()==null || rdbConfig.getDbFileName().isBlank()) return;
+
         Path path= Paths.get(rdbConfig.getDir(),rdbConfig.getDbFileName());
         if(Files.exists(path)){
             try(InputStream inputStream=Files.newInputStream(path);) {
