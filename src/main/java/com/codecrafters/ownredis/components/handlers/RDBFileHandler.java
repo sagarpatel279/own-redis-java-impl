@@ -2,17 +2,18 @@ package com.codecrafters.ownredis.components.handlers;
 
 import com.codecrafters.ownredis.components.config.RDBConfig;
 import com.codecrafters.ownredis.components.repos.ExpiringMap;
+import com.codecrafters.ownredis.resp.parser.Pair;
 import com.codecrafters.ownredis.resp.parser.RDBFileParser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor
@@ -26,8 +27,18 @@ public class RDBFileHandler {
         if(Files.exists(path)){
             try(InputStream inputStream=Files.newInputStream(path);) {
                 RDBFileParser parser=new RDBFileParser(inputStream);
-                Map<String,String> keysStore=parser.parse();
-                store.putAll(keysStore);
+                Map<String,Pair<String,Long>> keysStore=parser.parse();
+                for(Map.Entry<String, Pair<String,Long>> entry:keysStore.entrySet()){
+                    String key=entry.getKey();
+                    Pair<String,Long> valuePair=entry.getValue();
+                    String value=valuePair.getFirst();
+                    long expiry=valuePair.getSecond();
+                    if(expiry!=-1){
+                        store.put(key,value,expiry, TimeUnit.MILLISECONDS);
+                    }else{
+                        store.put(key,value);
+                    }
+                }
             } catch (IOException e) {
                 System.out.println("=========Error in RDB File Reading...: "+e.getMessage());
                 throw new RuntimeException(e);

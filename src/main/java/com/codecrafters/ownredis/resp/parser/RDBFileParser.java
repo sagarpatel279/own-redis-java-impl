@@ -1,24 +1,32 @@
 package com.codecrafters.ownredis.resp.parser;
 
-import com.codecrafters.ownredis.components.repos.ExpiringMap;
 import lombok.RequiredArgsConstructor;
 
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-
 @RequiredArgsConstructor
 public class RDBFileParser {
     private final InputStream input;
 
-    public Map<String, String> parse() throws IOException {
-        Map<String,String> store=new HashMap<>();
+    public Map<String, Pair<String,Long>> parse() throws IOException {
+        Map<String,Pair<String,Long>> store=new HashMap<>();
+        DataInputStream dis = new DataInputStream(input);;
         // skip header (9 bytes): REDISxxxx
         input.skip(9);
 
         int nextByte;
         while ((nextByte = input.read()) != -1) {
+            long expiryTime=-1;
+            if (nextByte == 0xFD) { // Millisecond expiry
+                expiryTime = dis.readLong();    // 8 bytes
+                nextByte = dis.readUnsignedByte();  // actual type
+            } else if (nextByte == 0xFC) { // Second expiry
+                expiryTime = dis.readInt() * 1000L; // 4 bytes, convert to ms
+                nextByte = dis.readUnsignedByte();      // actual type
+            }
             if (nextByte == 0xFE) {
                 // DB selector, skip 1 byte (DB index)
                 input.read();
@@ -30,7 +38,7 @@ public class RDBFileParser {
                 // type: string
                 String key = readString();
                 String value = readString();
-                store.put(key, value);
+                store.put(key, Pair.of(value,expiryTime));
             } else if (nextByte == 0xFF) {
                 break; // end of file
             }
