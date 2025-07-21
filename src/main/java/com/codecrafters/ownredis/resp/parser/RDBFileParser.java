@@ -5,65 +5,70 @@ import lombok.RequiredArgsConstructor;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+
 @RequiredArgsConstructor
 public class RDBFileParser {
     private final InputStream input;
 
-    public Map<String, Pair<String,Long>> parse() throws IOException {
-        Map<String,Pair<String,Long>> store=new HashMap<>();
-        DataInputStream dis = new DataInputStream(input);;
-        // skip header (9 bytes): REDISxxxx
-        input.skip(9);
+    public Map<String, Pair<String, Long>> parse() throws IOException {
+        Map<String, Pair<String, Long>> store = new HashMap<>();
+        DataInputStream dis = new DataInputStream(input);
+
+        dis.skipBytes(9); // Skip REDISxxx version string
 
         int nextByte;
-        while ((nextByte = input.read()) != -1) {
-            long expiryTime=-1;
+        while ((nextByte = dis.read()) != -1) {
+            long expiryTime = -1;
+
             if (nextByte == 0xFD) { // Millisecond expiry
-                expiryTime = dis.readLong();    // 8 bytes
-                nextByte = dis.readUnsignedByte();  // actual type
+                expiryTime = dis.readLong();
+                nextByte = dis.readUnsignedByte();
             } else if (nextByte == 0xFC) { // Second expiry
-                expiryTime = dis.readInt() * 1000L; // 4 bytes, convert to ms
-                nextByte = dis.readUnsignedByte();      // actual type
+                expiryTime = dis.readInt() * 1000L;
+                nextByte = dis.readUnsignedByte();
             }
+
             if (nextByte == 0xFE) {
-                // DB selector, skip 1 byte (DB index)
-                input.read();
+                dis.readUnsignedByte(); // Skip DB selector byte
             } else if (nextByte == 0xFB) {
-                // skip hash table sizes
-                readLength(); // key count
-                readLength(); // expire count
-            } else if (nextByte == 0x00) {
-                // type: string
-                String key = readString();
-                String value = readString();
-                store.put(key, Pair.of(value,expiryTime));
+                readLength(dis); // Skip hash table size
+                readLength(dis); // Skip expire table size
+            } else if (nextByte == 0x00) { // Type: String
+                String key = readString(dis);
+                String value = readString(dis);
+                store.put(key, Pair.of(value, expiryTime));
             } else if (nextByte == 0xFF) {
-                break; // end of file
+                break; // End of file
+            } else {
+                throw new IOException("Unsupported type: " + nextByte);
             }
         }
 
         return store;
     }
 
-    private int readLength() throws IOException {
-        int firstByte = input.read();
+    private int readLength(DataInputStream dis) throws IOException {
+        int firstByte = dis.readUnsignedByte();
         int type = (firstByte & 0xC0) >> 6;
+
         if (type == 0) {
             return firstByte & 0x3F;
         } else if (type == 1) {
-            return ((firstByte & 0x3F) << 8) | input.read();
+            return ((firstByte & 0x3F) << 8) | dis.readUnsignedByte();
         } else if (type == 2) {
-            return (input.read() << 24) | (input.read() << 16) | (input.read() << 8) | input.read();
+            return dis.readInt();
         } else {
             throw new IOException("Unsupported length encoding.");
         }
     }
 
-    private String readString() throws IOException {
-        int len = readLength();
-        byte[] buffer = input.readNBytes(len);
-        return new String(buffer);
+    private String readString(DataInputStream dis) throws IOException {
+        int len = readLength(dis);
+        byte[] buffer = new byte[len];
+        dis.readFully(buffer);
+        return new String(buffer, StandardCharsets.UTF_8);
     }
 }
