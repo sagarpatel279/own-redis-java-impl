@@ -9,7 +9,9 @@ import org.springframework.stereotype.Component;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.codecrafters.ownredis.resp.constants.RESPCommandsConstants.*;
 import static com.codecrafters.ownredis.resp.constants.RESPEncodingConstants.*;
@@ -42,10 +44,26 @@ public class CommandHandler {
             case C_SET -> handleSetCommand();
             case C_GET -> handleGetCommand();
             case C_CONFIG -> handleConfigCommand();
+            case C_KEYS -> handleKeysCommand();
             default -> BULK_STRING + NULL_VALUE;
         };
     }
 
+    private String handleKeysCommand() {
+        String response=BULK_STRING+NULL_VALUE;
+        if(pullCommand().toString().equalsIgnoreCase(ARRAY)){
+            response=encodeBulkyString(expiringMap.keySet().stream().map(Object::toString).collect(Collectors.toSet()));
+        }
+        return response;
+    }
+    private String encodeBulkyString(Set<String> keys){
+        StringBuilder builder=new StringBuilder();
+        builder.append(ARRAY).append(keys.size()).append(CRLF);
+        for(String key:keys){
+            builder.append(BULK_STRING).append(key.length()).append(CRLF).append(key).append(CRLF);
+        }
+        return builder.toString();
+    }
     private String handleConfigCommand() {
         String response=BULK_STRING+NULL_VALUE;
         if(pullCommand().toString().equalsIgnoreCase(C_GET)){

@@ -19,6 +19,6 @@ public interface RESPCommandsConstants {
     String C_CONFIG="CONFIG";
     String C_DIR="dir";
     String C_DBFILENAME="dbfilename";
-
+    String C_KEYS="KEYS";
 
 }

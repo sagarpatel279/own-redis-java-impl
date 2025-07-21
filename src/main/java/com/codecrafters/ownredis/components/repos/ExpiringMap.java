@@ -2,6 +2,8 @@ package com.codecrafters.ownredis.components.repos;
 
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.*;
 
 @Component
@@ -17,7 +19,9 @@ public class ExpiringMap <K,V>{
     public void put(K key, V value) {
         map.put(key, value);
     }
-
+    public void putAll(Map<? extends K, ? extends V> m){
+        map.putAll(m);
+    }
     public V get(K key) {
         return map.get(key);
     }
@@ -26,4 +30,7 @@ public class ExpiringMap <K,V>{
         return map.containsKey(key);
     }
 
+    public Set<K> keySet(){
+        return map.keySet();
+    }
 }
