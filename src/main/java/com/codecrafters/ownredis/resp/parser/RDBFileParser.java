@@ -36,6 +36,9 @@ public class RDBFileParser {
             } else if (nextByte == 0xFB) {
                 readLength(dis); // Skip hash table size
                 readLength(dis); // Skip expire table size
+            } else if (nextByte == 0xFA) { // NEW: AUX field
+                readString(dis); // AUX key
+                readString(dis); // AUX value
             } else if (nextByte == 0x00) { // Type: String
                 String key = readString(dis);
                 String value = readString(dis);
