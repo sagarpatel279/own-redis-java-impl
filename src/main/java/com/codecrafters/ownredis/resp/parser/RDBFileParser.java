@@ -20,7 +20,7 @@ public class RDBFileParser {
 
         input.skip(9); // skip header: REDIS000X
         long expiryTime = -1;
-        while (true) {
+        while (((int)input.read())!=-1) {
             int type = input.read();
             if (type == 0xFC) {
                 expiryTime = readExpirySeconds();
