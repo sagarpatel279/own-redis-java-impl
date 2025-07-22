@@ -31,20 +31,20 @@ public class RDBFileParser {
                 expiryTime = dis.readInt() * 1000L;
                 nextByte = dis.readUnsignedByte();
             }
-
-            if (nextByte == 0xFE) {
+            int valueType = nextByte;
+            if (valueType == 0xFE) {
                 dis.readUnsignedByte(); // Skip DB selector byte
-            } else if (nextByte == 0xFB) {
+            } else if (valueType == 0xFB) {
                 readLength(dis); // Skip hash table size
                 readLength(dis); // Skip expire table size
-            } else if (nextByte == 0xFA) { // NEW: AUX field
+            } else if (valueType == 0xFA) { // NEW: AUX field
                 readString(dis); // AUX key
                 readString(dis); // AUX value
-            } else if (nextByte == 0x00) { // Type: String
+            } else if (valueType == 0x00) { // Type: String
                 String key = readString(dis);
                 String value = readString(dis);
                 store.put(key, Pair.of(value, expiryTime));
-            } else if (nextByte == 0xFF) {
+            } else if (valueType == 0xFF) {
                 break; // End of file
             }
         }
