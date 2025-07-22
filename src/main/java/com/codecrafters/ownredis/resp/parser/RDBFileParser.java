@@ -17,7 +17,7 @@ public class RDBFileParser {
         Map<String, Pair<String, Long>> store = new HashMap<>();
         DataInputStream dis = new DataInputStream(input);
 
-        dis.skipBytes(9); // Skip REDISxxx version string
+        dis.skipBytes(9); // Skip REDIS000x
 
         int nextByte;
         while ((nextByte = dis.read()) != -1) {
@@ -32,24 +32,20 @@ public class RDBFileParser {
             }
 
             if (nextByte == 0xFE) {
-                dis.readUnsignedByte(); // DB selector
+                dis.readUnsignedByte(); // Skip DB selector byte
             } else if (nextByte == 0xFB) {
-                readLength(dis); // Hash table size
-                readLength(dis); // Expire table size
-            } else if (nextByte == 0xFA) {
-                // Skip auxiliary field
-                String auxKey = readString(dis);
-                String auxVal = readString(dis);
-                // Optional: log or ignore
-            } else if (nextByte == 0x00) {
+                readLength(dis); // Skip hash table size
+                readLength(dis); // Skip expire table size
+            } else if (nextByte == 0x00) { // Type: String
                 String key = readString(dis);
                 String value = readString(dis);
                 store.put(key, Pair.of(value, expiryTime));
             } else if (nextByte == 0xFF) {
-                break;
+                break; // End of file
             } else {
-                throw new IOException("Unsupported type: " + nextByte);
-            }        }
+                throw new IOException("Unsupported object type: " + nextByte);
+            }
+        }
 
         return store;
     }
@@ -64,15 +60,36 @@ public class RDBFileParser {
             return ((firstByte & 0x3F) << 8) | dis.readUnsignedByte();
         } else if (type == 2) {
             return dis.readInt();
+        } else if (type == 3) {
+            throw new IOException("Special encoding (type 3) not supported in readLength yet.");
         } else {
-            throw new IOException("Unsupported length encoding.");
+            throw new IOException("Unknown length encoding type.");
         }
     }
 
     private String readString(DataInputStream dis) throws IOException {
-        int len = readLength(dis);
-        byte[] buffer = new byte[len];
-        dis.readFully(buffer);
-        return new String(buffer, StandardCharsets.UTF_8);
+        dis.mark(1);
+        int firstByte = dis.readUnsignedByte();
+        int type = (firstByte & 0xC0) >> 6;
+
+        if (type == 3) {
+            int encodingType = firstByte & 0x3F;
+            if (encodingType == 0) { // 8-bit signed integer
+                return String.valueOf(dis.readByte());
+            } else if (encodingType == 1) { // 16-bit signed integer
+                return String.valueOf(dis.readShort());
+            } else if (encodingType == 2) { // 32-bit signed integer
+                return String.valueOf(dis.readInt());
+            } else {
+                throw new IOException("Unsupported special string encoding type: " + encodingType);
+            }
+        } else {
+            // Normal string, reset to read length again
+            dis.reset();
+            int len = readLength(dis);
+            byte[] buffer = new byte[len];
+            dis.readFully(buffer);
+            return new String(buffer, StandardCharsets.UTF_8);
+        }
     }
 }
