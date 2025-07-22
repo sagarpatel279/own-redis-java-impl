@@ -32,20 +32,24 @@ public class RDBFileParser {
             }
 
             if (nextByte == 0xFE) {
-                dis.readUnsignedByte(); // Skip DB selector byte
+                dis.readUnsignedByte(); // DB selector
             } else if (nextByte == 0xFB) {
-                readLength(dis); // Skip hash table size
-                readLength(dis); // Skip expire table size
-            } else if (nextByte == 0x00) { // Type: String
+                readLength(dis); // Hash table size
+                readLength(dis); // Expire table size
+            } else if (nextByte == 0xFA) {
+                // Skip auxiliary field
+                String auxKey = readString(dis);
+                String auxVal = readString(dis);
+                // Optional: log or ignore
+            } else if (nextByte == 0x00) {
                 String key = readString(dis);
                 String value = readString(dis);
                 store.put(key, Pair.of(value, expiryTime));
             } else if (nextByte == 0xFF) {
-                break; // End of file
+                break;
             } else {
                 throw new IOException("Unsupported type: " + nextByte);
-            }
-        }
+            }        }
 
         return store;
     }
