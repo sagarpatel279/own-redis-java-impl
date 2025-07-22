@@ -2,6 +2,7 @@ package com.codecrafters.ownredis.resp.parser;
 
 import lombok.RequiredArgsConstructor;
 
+import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,7 +16,7 @@ public class RDBFileParser {
 
     public Map<String, Pair<String, Long>> parse() throws IOException {
         Map<String, Pair<String, Long>> store = new HashMap<>();
-        DataInputStream dis = new DataInputStream(input);
+        DataInputStream dis = new DataInputStream(new BufferedInputStream(input));
 
         dis.skipBytes(9); // Skip REDIS000x
 
@@ -63,8 +64,6 @@ public class RDBFileParser {
             return ((firstByte & 0x3F) << 8) | dis.readUnsignedByte();
         } else if (type == 2) {
             return dis.readInt();
-        } else if (type == 3) {
-            throw new IOException("Special encoding (type 3) not supported in readLength yet.");
         } else {
             throw new IOException("Unknown length encoding type.");
         }
