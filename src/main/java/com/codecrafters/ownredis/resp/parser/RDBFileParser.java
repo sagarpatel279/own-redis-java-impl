@@ -19,8 +19,8 @@ public class RDBFileParser {
         System.out.println("=============Inside parser");
         input.skip(9); // skip header: REDIS000X
         long expiryTime = -1;
-        while ((input.read())!=-1) {
-            int type = input.read();
+        int type;
+        while ((type = input.read()) != -1) {
             System.out.println("=====Type: "+type);
             if (type == 0xFC) {
                 expiryTime = readExpirySeconds();
@@ -95,6 +95,6 @@ public class RDBFileParser {
 
     private void skipUnknown(InputStream input) throws IOException {
         // Skip unknown bytes safely
-        while (input.read() != -1) {}
+        input.skipNBytes(1);
     }
 }
