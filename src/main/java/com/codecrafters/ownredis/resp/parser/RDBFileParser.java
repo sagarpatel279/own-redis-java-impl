@@ -43,6 +43,7 @@ public class RDBFileParser {
             } else if (valueType == 0x00) { // Type: String
                 String key = readString(dis);
                 String value = readString(dis);
+                System.out.println("Key: "+key+" Value: "+value+" Expiry Time: "+expiryTime);
                 store.put(key, Pair.of(value, expiryTime));
             } else if (valueType == 0xFF) {
                 break; // End of file
