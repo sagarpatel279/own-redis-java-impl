@@ -46,8 +46,6 @@ public class RDBFileParser {
                 store.put(key, Pair.of(value, expiryTime));
             } else if (nextByte == 0xFF) {
                 break; // End of file
-            } else {
-                throw new IOException("Unsupported object type: " + nextByte);
             }
         }
 
