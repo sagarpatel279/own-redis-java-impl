@@ -22,12 +22,13 @@ public class RDBFileHandler {
     private final ExpiringMap<Object,Object> store;
     public void readKeysFromRDBFile(){
         if(rdbConfig.getDir()==null || rdbConfig.getDir().isBlank()|| rdbConfig.getDbFileName()==null || rdbConfig.getDbFileName().isBlank()) return;
-
+        System.out.println("===========File Handling Part");
         Path path= Paths.get(rdbConfig.getDir(),rdbConfig.getDbFileName());
         if(Files.exists(path)){
             try(InputStream inputStream=Files.newInputStream(path);) {
                 RDBFileParser parser=new RDBFileParser(inputStream);
                 Map<String,Pair<String,Long>> keysStore=parser.parse();
+                System.out.println("Got the Keys: "+keysStore);
                 for(Map.Entry<String, Pair<String,Long>> entry:keysStore.entrySet()){
                     String key=entry.getKey();
                     Pair<String,Long> valuePair=entry.getValue();
