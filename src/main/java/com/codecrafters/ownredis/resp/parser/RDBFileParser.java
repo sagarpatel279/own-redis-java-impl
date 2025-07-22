@@ -17,11 +17,12 @@ public class RDBFileParser {
 
     public Map<String, Pair<String,Long>> parse() throws IOException {
         Map<String, Pair<String,Long>> result = new HashMap<>();
-
+        System.out.println("=============Inside parser");
         input.skip(9); // skip header: REDIS000X
         long expiryTime = -1;
-        while (((int)input.read())!=-1) {
+        while ((input.read())!=-1) {
             int type = input.read();
+            System.out.println("=====Type: "+type);
             if (type == 0xFC) {
                 expiryTime = readExpirySeconds();
                 type = input.read(); // read actual type after expiry
@@ -44,7 +45,6 @@ public class RDBFileParser {
                 skipUnknown(input);
             }
         }
-
         return result;
     }
     private long readExpirySeconds() throws IOException {
