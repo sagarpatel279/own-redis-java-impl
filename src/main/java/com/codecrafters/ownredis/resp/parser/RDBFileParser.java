@@ -1,96 +1,100 @@
 package com.codecrafters.ownredis.resp.parser;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+@Component
 @RequiredArgsConstructor
 public class RDBFileParser {
     private final InputStream input;
 
-    public Map<String, Pair<String, Long>> parse() throws IOException {
-        Map<String, Pair<String, Long>> store = new HashMap<>();
-        DataInputStream dis = new DataInputStream(new BufferedInputStream(input));
+    public Map<String, Pair<String,Long>> parse() throws IOException {
+        Map<String, Pair<String,Long>> result = new HashMap<>();
 
-        dis.skipBytes(9); // Skip REDIS000x
+        input.skip(9); // skip header: REDIS000X
 
-        int nextByte;
-        while ((nextByte = dis.read()) != -1) {
-            long expiryTime = -1;
-
-            if (nextByte == 0xFD) { // Millisecond expiry
-                expiryTime = dis.readLong();
-                nextByte = dis.readUnsignedByte();
-            } else if (nextByte == 0xFC) { // Second expiry
-                expiryTime = dis.readInt() * 1000L;
-                nextByte = dis.readUnsignedByte();
+        while (true) {
+            int type = input.read();
+            long expiryTime=-1;
+            if (type == 0xFC) {
+                expiryTime = readExpirySeconds();
+                type = input.read(); // read actual type after expiry
+            } else if (type == 0xFD) {
+                expiryTime = readExpiryMillis();
+                type = input.read(); // read actual type after expiry
             }
-            int valueType = nextByte;
-            if (valueType == 0xFE) {
-                dis.readUnsignedByte(); // Skip DB selector byte
-            } else if (valueType == 0xFB) {
-                readLength(dis); // Skip hash table size
-                readLength(dis); // Skip expire table size
-            } else if (valueType == 0xFA) { // NEW: AUX field
-                readString(dis); // AUX key
-                readString(dis); // AUX value
-            } else if (valueType == 0x00) { // Type: String
-                String key = readString(dis);
-                String value = readString(dis);
-                System.out.println("Key: "+key+" Value: "+value+" Expiry Time: "+expiryTime);
-                store.put(key, Pair.of(value, expiryTime));
-            } else if (valueType == 0xFF) {
-                break; // End of file
-            }
-        }
-
-        return store;
-    }
-
-    private int readLength(DataInputStream dis) throws IOException {
-        int firstByte = dis.readUnsignedByte();
-        int type = (firstByte & 0xC0) >> 6;
-
-        if (type == 0) {
-            return firstByte & 0x3F;
-        } else if (type == 1) {
-            return ((firstByte & 0x3F) << 8) | dis.readUnsignedByte();
-        } else if (type == 2) {
-            return dis.readInt();
-        } else {
-            throw new IOException("Unknown length encoding type.");
-        }
-    }
-
-    private String readString(DataInputStream dis) throws IOException {
-        dis.mark(1);
-        int firstByte = dis.readUnsignedByte();
-        int type = (firstByte & 0xC0) >> 6;
-
-        if (type == 3) {
-            int encodingType = firstByte & 0x3F;
-            if (encodingType == 0) { // 8-bit signed integer
-                return String.valueOf(dis.readByte());
-            } else if (encodingType == 1) { // 16-bit signed integer
-                return String.valueOf(dis.readShort());
-            } else if (encodingType == 2) { // 32-bit signed integer
-                return String.valueOf(dis.readInt());
+            if (type == 0x00) { // type string
+                String key = readString();
+                String value = readString();
+                result.put(key, Pair.of(value,expiryTime));
+            } else if (type == 0xFF) {
+                break; // end of file
+            } else if (type == 0xFE) {
+                input.read(); // skip DB selector
             } else {
-                throw new IOException("Unsupported special string encoding type: " + encodingType);
+                // skip unknown type or metadata
+                skipUnknown(input);
             }
-        } else {
-            // Normal string, reset to read length again
-            dis.reset();
-            int len = readLength(dis);
-            byte[] buffer = new byte[len];
-            dis.readFully(buffer);
-            return new String(buffer, StandardCharsets.UTF_8);
         }
+
+        return result;
+    }
+    private long readExpirySeconds() throws IOException {
+        return readUnsignedIntLE() * 1000L;
+    }
+
+    private long readExpiryMillis() throws IOException {
+        return readUnsignedLongLE();
+    }
+
+    private long readUnsignedIntLE() throws IOException {
+        int b0 = input.read();
+        int b1 = input.read();
+        int b2 = input.read();
+        int b3 = input.read();
+
+        if ((b0 | b1 | b2 | b3) < 0) {
+            throw new EOFException("Unexpected end of stream while reading expiry");
+        }
+
+        return ((long) b0 & 0xFF)
+                | (((long) b1 & 0xFF) << 8)
+                | (((long) b2 & 0xFF) << 16)
+                | (((long) b3 & 0xFF) << 24);
+    }
+
+    private long readUnsignedLongLE() throws IOException {
+        long result = 0;
+        for (int i = 0; i < 8; i++) {
+            int b = input.read();
+            if (b == -1) throw new EOFException("Unexpected end of stream while reading 8-byte expiry");
+            result |= ((long) b & 0xFF) << (8 * i);
+        }
+        return result;
+    }
+    private int readLength() throws IOException {
+        int first = input.read();
+        int type = (first & 0xC0) >> 6;
+        if (type == 0) return first & 0x3F;
+        else if (type == 1) return ((first & 0x3F) << 8) | input.read();
+        else throw new IOException("Unsupported length type");
+    }
+
+    private String readString() throws IOException {
+        int len = readLength();
+        byte[] buf = input.readNBytes(len);
+        return new String(buf, StandardCharsets.UTF_8);
+    }
+
+    private void skipUnknown(InputStream input) throws IOException {
+        // Skip unknown bytes safely
+        while (input.read() != -1) {}
     }
 }
