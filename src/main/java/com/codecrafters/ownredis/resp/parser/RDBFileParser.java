@@ -82,10 +82,28 @@ public class RDBFileParser {
     private int readLength() throws IOException {
         int first = input.read();
         int type = (first & 0xC0) >> 6;
-        if (type == 0) return first & 0x3F;
-        else if (type == 1) return ((first & 0x3F) << 8) | input.read();
-        else throw new IOException("Unsupported length type");
+
+        if (type == 0) {
+            return first & 0x3F; // 6-bit length
+        } else if (type == 1) {
+            int second = input.read();
+            return ((first & 0x3F) << 8) | second; // 14-bit length
+        } else if (type == 2) {
+            // Special encoding type (like int-encoded strings)
+            throw new IOException("Special encodings (type=2) not yet supported");
+        } else if (type == 3) {
+            // 32-bit length follows
+            byte[] lenBytes = input.readNBytes(4);
+            if (lenBytes.length < 4) throw new IOException("Incomplete 32-bit length");
+            return ((lenBytes[0] & 0xFF))
+                    | ((lenBytes[1] & 0xFF) << 8)
+                    | ((lenBytes[2] & 0xFF) << 16)
+                    | ((lenBytes[3] & 0xFF) << 24);
+        } else {
+            throw new IOException("Unknown length encoding type: " + type);
+        }
     }
+
 
     private String readString() throws IOException {
         int len = readLength();
