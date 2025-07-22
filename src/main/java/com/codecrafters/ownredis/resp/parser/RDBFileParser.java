@@ -19,10 +19,9 @@ public class RDBFileParser {
         Map<String, Pair<String,Long>> result = new HashMap<>();
 
         input.skip(9); // skip header: REDIS000X
-
+        long expiryTime = -1;
         while (true) {
             int type = input.read();
-            long expiryTime=-1;
             if (type == 0xFC) {
                 expiryTime = readExpirySeconds();
                 type = input.read(); // read actual type after expiry
@@ -34,10 +33,11 @@ public class RDBFileParser {
                 String key = readString();
                 String value = readString();
                 result.put(key, Pair.of(value,expiryTime));
+                expiryTime = -1;
             } else if (type == 0xFF) {
                 break; // end of file
             } else if (type == 0xFE) {
-                input.read(); // skip DB selector
+                input.read(); //
             } else {
                 // skip unknown type or metadata
                 skipUnknown(input);
