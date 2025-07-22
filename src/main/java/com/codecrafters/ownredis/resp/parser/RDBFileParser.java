@@ -27,6 +27,7 @@ public class RDBFileParser {
 
         while ((type = input.read()) != -1) {
             System.out.println("=====Type: " + String.format("0x%02X", type));
+            expiryTime = -1; // Reset expiry after use
 
             // Handle expiry time markers
             if (type == 0xFC) {
@@ -44,7 +45,6 @@ public class RDBFileParser {
                 String value = readString();
                 System.out.println("Key: " + key + " Value: " + value + " Expiry: " + expiryTime);
                 result.put(key, Pair.of(value, expiryTime));
-                expiryTime = -1; // Reset expiry after use
             } else if (type == 0xFF) {
                 // End of RDB file
                 break;

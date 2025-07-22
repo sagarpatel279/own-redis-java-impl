@@ -9,7 +9,7 @@ import java.util.concurrent.*;
 @Component
 public class ExpiringMap <K,V>{
     private final ConcurrentMap<K, V> map = new ConcurrentHashMap<>();
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(3);
 
     public void put(K key, V value, long delay, TimeUnit unit) {
         map.put(key, value);
