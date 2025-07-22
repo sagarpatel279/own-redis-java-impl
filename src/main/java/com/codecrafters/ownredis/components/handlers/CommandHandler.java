@@ -51,7 +51,9 @@ public class CommandHandler {
 
     private String handleKeysCommand() {
         String response=BULK_STRING+NULL_VALUE;
+        System.out.println("===============In Keys Command========");
         if(pullCommand().toString().equalsIgnoreCase(ARRAY)){
+            System.out.println("**********************Inside all the keys");
             response=encodeBulkyString(expiringMap.keySet().stream().map(Object::toString).collect(Collectors.toSet()));
         }
         return response;

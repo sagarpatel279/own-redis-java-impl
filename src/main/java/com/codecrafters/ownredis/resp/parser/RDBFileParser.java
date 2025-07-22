@@ -32,6 +32,7 @@ public class RDBFileParser {
             if (type == 0x00) { // type string
                 String key = readString();
                 String value = readString();
+                System.out.println("Key: "+key+" Value: "+value+" Expiry: "+expiryTime);
                 result.put(key, Pair.of(value,expiryTime));
                 expiryTime = -1;
             } else if (type == 0xFF) {
